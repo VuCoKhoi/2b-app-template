@@ -1,0 +1,12 @@
+{
+  "dependencies": {
+    "check-disk-space": "^3.2.0",
+    "concurrently": "^7.0.0"
+  },
+  "scripts": {
+    "dev": "concurrently 'npm:dev-*'",
+    "dev-proxy": "cd proxy && npm run dev",
+    "dev-fe": "cd frontend && npm run dev",
+    "dev-be": "cd backend && npm run dev"
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "private": true,
+  "version": "0.0.1",
+  "license": "MIT",
+  "scripts": {
+    "dev": "concurrently --kill-others \"NODE_PATH=build/ tsc -w\" \"NODE_PATH=build/ nodemon build/app.js\"",
+    "start": "npm run build && NODE_PATH=build/ node ./build/app.js",
+    "start-order-crawl": "NODE_PATH=build/  node ./build/command.js -c order",
+    "start-product-crawl": "NODE_PATH=build/  node ./build/command.js -c product",
+    "start-inventory-item-crawl": "NODE_PATH=build/  node ./build/command.js -c inventory-item",
+    "build": "NODE_PATH=build/ tsc --project tsconfig.json"
+  },
+  "author": {
+    "name": "Vu Co Khoi",
+    "email": "vucokhoilsls@gmail.com"
+  },
+  "dependencies": {
+    "aws-sdk": "^2.1078.0",
+    "body-parser": "1.19.2",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.13.2",
+    "commander": "^9.0.0",
+    "concurrently": "^7.0.0",
+    "cookie-parser": "^1.4.6",
+    "cron-decorators": "^0.1.5",
+    "crypto": "^1.0.1",
+    "dotenv": "^16.0.0",
+    "express": "^4.17.3",
+    "express-list-routes": "^1.1.3",
+    "http-status-codes": "^2.2.0",
+    "isomorphic-fetch": "^3.0.0",
+    "jsonwebtoken": "^8.5.1",
+    "jwt-decode": "^3.1.2",
+    "lodash": "^4.17.21",
+    "mongoose": "^6.2.2",
+    "morgan": "^1.10.0",
+    "multer": "1.4.4",
+    "node-xlsx": "^0.21.0",
+    "reflect-metadata": "0.1.13",
+    "routing-controllers": "0.9.0",
+    "shopify-api-node": "^3.8.2",
+    "typedi": "^0.10.0",
+    "uuid": "^8.3.2"
+  },
+  "devDependencies": {
+    "@types/body-parser": "1.19.2",
+    "@types/commander": "^2.12.2",
+    "@types/express": "^4.17.13",
+    "@types/lodash": "^4.14.178",
+    "@types/mongoose": "^5.11.97",
+    "@types/multer": "1.4.7",
+    "@types/node": "^17.0.18",
+    "@typescript-eslint/eslint-plugin": "^5.12.0",
+    "@typescript-eslint/parser": "^5.12.0",
+    "eslint": "^8.9.0",
+    "nodemon": "^2.0.15",
+    "typescript": "^4.5.5"
+  }
+}
