@@ -55,8 +55,6 @@ app.prepare().then(() => {
 
         ACTIVE_SHOPIFY_SHOPS[shop] = scope;
 
-        console.log("aaaaaaaa", SCOPES.split(","));
-
         const result = await fetch(`${API_HOST}/api/public/register`, {
           method: "POST",
           body: JSON.stringify(ctx.state.shopify),

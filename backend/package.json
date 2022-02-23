@@ -4,7 +4,7 @@
   "license": "MIT",
   "scripts": {
     "dev": "concurrently --kill-others \"NODE_PATH=build/ tsc -w\" \"NODE_PATH=build/ nodemon build/app.js\"",
-    "start": "npm run build && NODE_PATH=build/ node ./build/app.js",
+    "start": "NODE_PATH=build/ node ./build/app.js",
     "start-order-crawl": "NODE_PATH=build/  node ./build/command.js -c order",
     "start-product-crawl": "NODE_PATH=build/  node ./build/command.js -c product",
     "start-inventory-item-crawl": "NODE_PATH=build/  node ./build/command.js -c inventory-item",
