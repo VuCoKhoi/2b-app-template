@@ -3,8 +3,8 @@ import { Schema, model } from "mongoose";
 import Shopify from "shopify-api-node";
 
 export interface ShopifyOrder extends Shopify.IOrder {
-  updatedAt: Date;
-  createdAt: Date;
+  updatedAt?: Date;
+  createdAt?: Date;
 }
 
 const shopifyOrderSchema = new Schema<ShopifyOrder>(
@@ -207,7 +207,7 @@ const shopifyOrderSchema = new Schema<ShopifyOrder>(
       currency: String,
       accepts_marketing_updated_at: Date,
       marketing_opt_in_level: String,
-      sms_marketing_consent: String,
+      sms_marketing_consent: mongoose.Schema.Types.Mixed,
       default_address: {
         id: Number,
         customer_id: Number,
@@ -283,7 +283,32 @@ const shopifyOrderSchema = new Schema<ShopifyOrder>(
         discount_allocations: [mongoose.Schema.Types.Mixed],
       },
     ],
-    refunds: [mongoose.Schema.Types.Mixed],
+    refunds: [
+      {
+        id: Number,
+        admin_graphql_api_id: String,
+        created_at: Date,
+        note: String,
+        order_id: Number,
+        processed_at: Date,
+        restock: Boolean,
+        total_duties_set: {
+          shop_money: {
+            amount: Number,
+            currency_code: String,
+          },
+          presentment_money: {
+            amount: Number,
+            currency_code: String,
+          },
+        },
+        user_id: Number,
+        order_adjustments: [mongoose.Schema.Types.Mixed],
+        transactions: [mongoose.Schema.Types.Mixed],
+        refund_line_items: [mongoose.Schema.Types.Mixed],
+        duties: [mongoose.Schema.Types.Mixed],
+      },
+    ],
     shipping_address: {
       first_name: String,
       address1: String,

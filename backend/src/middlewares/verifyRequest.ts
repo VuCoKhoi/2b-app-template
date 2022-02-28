@@ -33,7 +33,6 @@ export class VerifyRequestMiddleware implements ExpressMiddlewareInterface {
       } else {
         throw new UnauthorizedError();
       }
-      next();
     } catch (error) {
       throw new UnauthorizedError(error);
     }

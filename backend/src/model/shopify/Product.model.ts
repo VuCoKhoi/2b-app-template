@@ -2,8 +2,8 @@ import { Schema, model } from "mongoose";
 import Shopify from "shopify-api-node";
 
 export interface ShopifyProduct extends Shopify.IProduct {
-  updatedAt: Date;
-  createdAt: Date;
+  updatedAt?: Date;
+  createdAt?: Date;
 }
 
 const shopifyProductSchema = new Schema<ShopifyProduct>(

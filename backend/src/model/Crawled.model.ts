@@ -4,8 +4,8 @@ import { CrawlerName } from "shares/enums/crawler";
 export interface Crawled {
   crawlerName: string;
   previousSyncTime: Date;
-  updatedAt: Date;
-  createdAt: Date;
+  updatedAt?: Date;
+  createdAt?: Date;
 }
 
 const crawledSchema = new Schema<Crawled>(

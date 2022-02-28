@@ -37,7 +37,8 @@ export class CrawlerService {
     totalItems: number;
     crawlerName: CrawlerName;
   }) {
-    const { crawlerName } = data;
+    const { crawlerName, totalItems } = data;
+    if (!totalItems) return;
     await CrawledModel.findOneAndUpdate<Crawled>(
       { crawlerName },
       { crawlerName, previousSyncTime: new Date() },
@@ -99,15 +100,25 @@ export class CrawlerService {
 
   async crawlOrders(crawlerName: CrawlerName) {
     await this._loop(
-      async ({ shopifyClient, defaultParams: nextPageParameters }) =>
-        await this.shopifyOrderService.getOrders(
+      async ({ shopifyClient, defaultParams: nextPageParameters }) => {
+        const updatedAtMax = new Date(
+          Math.min(
+            this.startSyncAt.getTime(),
+            (
+              await this._getPreviousSyncTime(CrawlerName.InventoryItem)
+            ).getTime()
+          )
+        );
+
+        return await this.shopifyOrderService.getOrders(
           shopifyClient,
           {
             updated_at_min: await this._getPreviousSyncTime(crawlerName),
-            updated_at_max: this.startSyncAt,
+            updated_at_max: updatedAtMax,
           },
           nextPageParameters
-        ),
+        );
+      },
       this.shopifyOrderService.saveOrder2Db,
       {
         onUpdateChunk: ({ totalItems }) => {

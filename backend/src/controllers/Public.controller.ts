@@ -10,19 +10,25 @@ import { Shop } from "model/Shop.model";
 import { ShopService } from "services/Shop.service";
 import { AuthService } from "services/Auth.service";
 import { checkRootDiskSpace, formatBytes } from "shares/utils/check-disk-space";
+import { ReportService } from "services/Report.service";
 
 @Service()
 @JsonController("/public")
 export class PublicController {
   constructor(
     private authService: AuthService,
-    private shopService: ShopService
+    private shopService: ShopService,
+    private reportService: ReportService
   ) {}
 
   @Get()
   async test() {
-    const { diskPath, free, size } = await checkRootDiskSpace("/");
+    return await this.reportService.makeReport();
+  }
 
+  @Get("/disk")
+  async diskCheck() {
+    const { diskPath, free, size } = await checkRootDiskSpace("/");
     return { diskPath, free: formatBytes(free), size: formatBytes(size) };
   }
 

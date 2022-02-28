@@ -3,13 +3,13 @@ import Shopify from "shopify-api-node";
 
 export interface Shop extends Shopify.IShop {
   accessToken: string;
-  updatedAt: Date;
-  createdAt: Date;
+  updatedAt?: Date;
+  createdAt?: Date;
 }
 
 const shopSchema = new Schema<Shop>(
   {
-    accessToken: String,
+    accessToken: { type: String, required: true },
     // extends
     address1: String,
     address2: String,

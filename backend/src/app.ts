@@ -13,6 +13,7 @@ import * as bodyParser from "body-parser";
 import { PublicController } from "./controllers/Public.controller";
 import { ShopController } from "./controllers/Shop.controller";
 import { JobController } from "controllers/Job.controller";
+import { ReportController } from "controllers/Report.controller";
 
 /**
  * Setup routing-controllers to use typedi container.
@@ -48,7 +49,7 @@ expressApp.use("/api/statics", express.static("statics"));
 useExpressServer(expressApp, {
   defaultErrorHandler: false,
   routePrefix: "api",
-  controllers: [ShopController, PublicController],
+  controllers: [ShopController, PublicController, ReportController],
 });
 
 /**
