@@ -4,7 +4,7 @@
     "concurrently": "^7.0.0"
   },
   "scripts": {
-    "start-setup": "(yarn); (cd backend && yarn && yarn build); (cd frontend && yarn && yarn build)",
+    "start-setup": "(yarn); (cd backend && yarn && yarn build); (cd proxy && yarn); (cd frontend && yarn && yarn build)",
     "dev": "concurrently 'npm:dev-*'",
     "dev-proxy": "cd proxy && npm run dev",
     "dev-fe": "cd frontend && npm run dev",
