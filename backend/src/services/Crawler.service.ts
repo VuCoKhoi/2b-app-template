@@ -31,6 +31,7 @@ export class CrawlerService {
       name: shop.myshopify_domain,
       accessToken: shop.accessToken,
     });
+    return shop;
   }
 
   private async _crawlerLoopFinished(data: {
@@ -67,26 +68,30 @@ export class CrawlerService {
       const { onUpdateChunk, onUpdateFinish, crawlerName } = options;
       while (true) {
         this.startSyncAt = new Date();
-        await this.createClient();
-        let totalItems = 0;
-        let nextPageParameters = null;
+        const shop = await this.createClient();
+        if (!shop) {
+          console.log("shop not found");
+        } else {
+          let totalItems = 0;
+          let nextPageParameters = null;
 
-        console.log("\n\n");
+          console.log("\n\n");
 
-        do {
-          const newData = await handleGetData({
-            shopifyClient: this.shopifyClient,
-            defaultParams: nextPageParameters,
-          });
-          nextPageParameters = newData.nextPageParameters;
-          totalItems += newData.length;
-          await handleUpdate(newData);
-          if (onUpdateChunk) {
-            await onUpdateChunk({ totalItems, newData, nextPageParameters });
+          do {
+            const newData = await handleGetData({
+              shopifyClient: this.shopifyClient,
+              defaultParams: nextPageParameters,
+            });
+            nextPageParameters = newData.nextPageParameters;
+            totalItems += newData.length;
+            await handleUpdate(newData);
+            if (onUpdateChunk) {
+              await onUpdateChunk({ totalItems, newData, nextPageParameters });
+            }
+          } while (nextPageParameters);
+          if (onUpdateFinish) {
+            await onUpdateFinish({ totalItems, crawlerName });
           }
-        } while (nextPageParameters);
-        if (onUpdateFinish) {
-          await onUpdateFinish({ totalItems, crawlerName });
         }
         console.log(
           `Waiting for next round after: ${NEXT_TICK_TIMEOUT / 1000}s`

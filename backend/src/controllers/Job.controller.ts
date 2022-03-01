@@ -30,6 +30,8 @@ export class JobController {
     runOnInit: false,
   })
   public async createReportCronJob(): Promise<void> {
+    await this.cronService.aggragteProductVariants();
+    await this.cronService.aggregateOrderItems();
     await this.reportService.makeReport();
   }
 }

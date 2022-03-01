@@ -10,12 +10,16 @@ import {
 import { Service } from "typedi";
 import { ReportService } from "services/Report.service";
 import { VerifyRequestMiddleware } from "middlewares/verifyRequest";
+import { CronService } from "services/Cron.service";
 
 @Service()
 @UseBefore(VerifyRequestMiddleware)
 @JsonController("/report")
 export class ReportController {
-  constructor(private reportService: ReportService) {}
+  constructor(
+    private reportService: ReportService,
+    private cronService: CronService
+  ) {}
 
   @Get("/histories")
   async getReport(
@@ -30,6 +34,8 @@ export class ReportController {
 
   @Post("")
   async exportReport() {
+    await this.cronService.aggragteProductVariants();
+    await this.cronService.aggregateOrderItems();
     return await this.reportService.makeReport(false);
   }
 
