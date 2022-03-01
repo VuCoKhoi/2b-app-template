@@ -1,7 +1,12 @@
+const addPrefix = (name) => {
+  const prefix = `[2B-avara-boutique]`;
+  return `${prefix}-${name}`;
+};
+
 module.exports = {
   apps: [
     {
-      name: "frontend",
+      name: addPrefix("frontend"),
       cwd: "./frontend",
       append_env_to_name: false,
       script: "yarn start",
@@ -11,7 +16,7 @@ module.exports = {
       watch: ["./frontend"],
     },
     {
-      name: "backend",
+      name: addPrefix("backend"),
       cwd: "./backend",
       append_env_to_name: false,
       script: "yarn start",
@@ -21,7 +26,7 @@ module.exports = {
       watch: ["./backend"],
     },
     {
-      name: "crawl-product",
+      name: addPrefix("crawl-product"),
       cwd: "./backend",
       append_env_to_name: false,
       script: "yarn start-product-crawl",
@@ -31,7 +36,7 @@ module.exports = {
       watch: ["./backend"],
     },
     {
-      name: "crawl-order",
+      name: addPrefix("crawl-order"),
       cwd: "./backend",
       append_env_to_name: false,
       script: "yarn start-order-crawl",
@@ -41,7 +46,7 @@ module.exports = {
       watch: ["./backend"],
     },
     {
-      name: "crawl-inventory-item",
+      name: addPrefix("crawl-inventory-item"),
       cwd: "./backend",
       append_env_to_name: false,
       script: "yarn start-inventory-item-crawl",
@@ -51,7 +56,7 @@ module.exports = {
       watch: ["./backend"],
     },
     {
-      name: "proxy",
+      name: addPrefix("proxy"),
       cwd: "./proxy",
       append_env_to_name: false,
       script: "yarn start",
