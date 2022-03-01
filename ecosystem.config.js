@@ -66,9 +66,8 @@ module.exports = {
     production: {
       user: "ubuntu",
       host: "52.54.53.127",
-      ref: "origin/master",
+      ref: "origin/jobs/avara-boutique-app",
       repo: "git@github.com:VuCoKhoi/2b-app-template.git",
-      branch: "jobs/avara-boutique-app",
       path: "/home/ubuntu/avara-boutique-app",
       "post-deploy":
         "yarn start-setup && pm2 reload ecosystem.config.js --env production",
