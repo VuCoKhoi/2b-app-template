@@ -2,7 +2,7 @@
 
 sudo apt update
 sudo apt install nginx -y
-sudo apt install certbot python3-certbot-nginx
+sudo apt install certbot python3-certbot-nginx -y
 
 
-# sudo certbot --nginx -d example.com -d www.example.com
+# sudo certbot --nginx -d avarareporting.shopavara.com 

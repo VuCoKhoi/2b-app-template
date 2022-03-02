@@ -28,8 +28,8 @@ export class CrawlerService {
       myshopify_domain: process.env.SHOP,
     });
     this.shopifyClient = this.shopifyClientRepository.createShopifyClient({
-      name: shop.myshopify_domain,
-      accessToken: shop.accessToken,
+      name: shop?.myshopify_domain,
+      accessToken: shop?.accessToken,
     });
     return shop;
   }
