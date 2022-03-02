@@ -72,25 +72,33 @@ export class CrawlerService {
         if (!shop) {
           console.log("shop not found");
         } else {
-          let totalItems = 0;
-          let nextPageParameters = null;
+          try {
+            let totalItems = 0;
+            let nextPageParameters = null;
 
-          console.log("\n\n");
+            console.log("\n\n");
 
-          do {
-            const newData = await handleGetData({
-              shopifyClient: this.shopifyClient,
-              defaultParams: nextPageParameters,
-            });
-            nextPageParameters = newData.nextPageParameters;
-            totalItems += newData.length;
-            await handleUpdate(newData);
-            if (onUpdateChunk) {
-              await onUpdateChunk({ totalItems, newData, nextPageParameters });
+            do {
+              const newData = await handleGetData({
+                shopifyClient: this.shopifyClient,
+                defaultParams: nextPageParameters,
+              });
+              nextPageParameters = newData.nextPageParameters;
+              totalItems += newData.length;
+              await handleUpdate(newData);
+              if (onUpdateChunk) {
+                await onUpdateChunk({
+                  totalItems,
+                  newData,
+                  nextPageParameters,
+                });
+              }
+            } while (nextPageParameters);
+            if (onUpdateFinish) {
+              await onUpdateFinish({ totalItems, crawlerName });
             }
-          } while (nextPageParameters);
-          if (onUpdateFinish) {
-            await onUpdateFinish({ totalItems, crawlerName });
+          } catch (error) {
+            console.error("crawler loop error:", error);
           }
         }
         console.log(

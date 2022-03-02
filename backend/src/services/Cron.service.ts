@@ -31,10 +31,10 @@ export class CronService {
     // const nowHourEnd = setStartHour(now);
 
     // const lastHourStart = new Date(
-    //   new Date(nowHourStart).getTime() - ONE_HOUR_IN_SECOUNDS
+    //   new Date(nowHourStart).getTime() - ONE_HOUR_IN_SECONDS
     // );
     // const lastHourEnd = new Date(
-    //   new Date(nowHourEnd).getTime() - ONE_HOUR_IN_SECOUNDS
+    //   new Date(nowHourEnd).getTime() - ONE_HOUR_IN_SECONDS
     // );
 
     const limit = 20;

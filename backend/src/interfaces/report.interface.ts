@@ -1,4 +1,6 @@
 export interface ProductSaleAggregateResult {
+  title: string;
+  variantTitle: string;
   unitSold: number;
   netSale: number;
   totalCost: number;
@@ -6,4 +8,18 @@ export interface ProductSaleAggregateResult {
   productVariantId: number;
   vendor: string;
   productType: string;
+}
+
+export interface LookUpInventoryItemResult extends ProductSaleAggregateResult {
+  title: string;
+  variantTitle: string;
+  currentInv: number;
+  totalInventoryPurcharsed: number;
+  grossProfit: number;
+  // grossMargin: number;
+  publishedDate: string;
+  daysSinceActivation: string | number;
+  // sellThru: number;
+  finalSale: string;
+  weeklyAvgRateOfSale: number;
 }

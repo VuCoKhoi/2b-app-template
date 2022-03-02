@@ -4,11 +4,13 @@ import { PaginateList, ReportHistory } from "../interfaces";
 import useSWR, { useSWRConfig } from "swr";
 import { prefix } from "../../pages/_app";
 
-type Props = {};
+type Props = {
+  offset: number;
+  setOffset: (offset: number) => void;
+};
 
-const PaginateList = (props: Props) => {
+const PaginateList = ({ offset, setOffset }: Props) => {
   const { mutate } = useSWRConfig();
-  const [offset, setOffset] = useState(0);
   const { data } = useSWR<PaginateList<ReportHistory>>(
     `/report/histories?offset=${offset}`
   );

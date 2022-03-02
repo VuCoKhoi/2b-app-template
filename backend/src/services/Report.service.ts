@@ -1,5 +1,9 @@
-import { ONE_DAY_IN_SECOUNDS } from "contants";
-import { ProductSaleAggregateResult } from "interfaces/report.interface";
+import { ONE_DAY_IN_SECONDS } from "contants";
+import {
+  LookUpInventoryItemResult,
+  ProductSaleAggregateResult,
+} from "interfaces/report.interface";
+import { groupBy, omit, pick } from "lodash";
 import { ReportHistory, ReportHistoryModel } from "model/ReportHistory.model";
 import {
   ProductVariant,
@@ -16,11 +20,17 @@ export class ReportService {
   async allTimeData(): Promise<ProductSaleAggregateResult[]> {
     return await ProductVariantSaleModel.aggregate([
       {
+        $match: {
+          productVariantId: { $ne: null },
+        },
+      },
+      {
         $group: {
           _id: {
             sku: "$sku",
             productVariantId: "$productVariantId",
-            // title: "$title", lookup
+            title: "$title", // lookup
+            variantTitle: "$variantTitle", // lookup
             vendor: "$vendor",
             productType: "$productType",
           },
@@ -36,22 +46,31 @@ export class ReportService {
           productVariantId: "$_id.productVariantId",
           vendor: "$_id.vendor",
           productType: "$_id.productType",
+          title: "$_id.title",
+          variantTitle: "$_id.variantTitle",
           unitSold: 1,
           netSale: 1,
           totalCost: 1,
         },
       },
+      { $sort: { productVariantId: -1 } },
     ]);
   }
 
   async last7DaysData(): Promise<ProductSaleAggregateResult[]> {
     return await ProductVariantSaleModel.aggregate([
       {
+        $match: {
+          productVariantId: { $ne: null },
+        },
+      },
+      {
         $group: {
           _id: {
             sku: "$sku",
             productVariantId: "$productVariantId",
-            // title: "$title", lookup
+            title: "$title", // lookup
+            variantTitle: "$variantTitle", // lookup
             vendor: "$vendor",
             productType: "$productType",
           },
@@ -78,7 +97,7 @@ export class ReportService {
   private _calcDaysActivation(publishedDate: string | Date) {
     return Math.ceil(
       (new Date().getTime() - new Date(publishedDate).getTime()) /
-        (ONE_DAY_IN_SECOUNDS * 1000)
+        (ONE_DAY_IN_SECONDS * 1000)
     );
   }
 
@@ -90,49 +109,57 @@ export class ReportService {
     // (if published date is after 1/1/2022 then formula is (Net Qty sold/Days Active)*7)
     let daysDivide = 1;
     const publishedDate = new Date(
-      formatWithTzOffset(new Date(productVariant.publishedDate))
+      formatWithTzOffset(new Date(productVariant?.publishedDate || new Date()))
     ).getTime();
     const now = new Date(formatWithTzOffset(new Date())).getTime();
     const startOfYear = new Date(
       formatWithTzOffset(setStartYear(new Date()))
     ).getTime();
-
-    if (publishedDate < startOfYear) {
-      daysDivide = Math.ceil(
-        (now - startOfYear) / (ONE_DAY_IN_SECOUNDS * 1000)
-      );
-    } else {
-      daysDivide = Math.ceil(
-        (now - publishedDate) / (ONE_DAY_IN_SECOUNDS * 1000)
-      );
+    if (productVariant?.publishedDate) {
+      if (publishedDate < startOfYear) {
+        daysDivide = Math.ceil(
+          (now - startOfYear) / (ONE_DAY_IN_SECONDS * 1000)
+        );
+      } else {
+        daysDivide = Math.ceil(
+          (now - publishedDate) / (ONE_DAY_IN_SECONDS * 1000)
+        );
+      }
     }
     return Math.floor(Number((data.unitSold * 7 * 100) / daysDivide)) / 100;
   }
 
-  async lookUpInventoryItemAndCalc(data: ProductSaleAggregateResult) {
+  async lookUpInventoryItemAndCalc(
+    data: ProductSaleAggregateResult
+  ): Promise<LookUpInventoryItemResult> {
     const productVariant = await ProductVariantModel.findOne({
       productVariantId: data.productVariantId,
     }).lean();
+
+    if (!productVariant) return null;
 
     const grossProfit = data.netSale - data.totalCost;
     const totalInventoryPurcharsed =
       (productVariant?.currentInv || 0) + (data.unitSold || 0);
     return {
       ...data,
-      title: productVariant.title,
+      title: productVariant?.title || data.title,
+      variantTitle: productVariant?.variantTitle || data.variantTitle,
       currentInv: productVariant?.currentInv || 0,
       totalInventoryPurcharsed,
       grossProfit: grossProfit || 0,
-      grossMargin: data.netSale
-        ? Math.floor((grossProfit * 100 * 100) / data.netSale) / 100
-        : 0,
-      publishedDate: new Date(
-        productVariant.publishedDate
-      ).toLocaleDateString(),
-      daysSinceActivation: this._calcDaysActivation(
-        productVariant.publishedDate
-      ),
-      sellThru: data.unitSold / totalInventoryPurcharsed,
+      // grossMargin: data.netSale
+      //   ? Math.floor((grossProfit * 100 * 100) / data.netSale) / 100
+      //   : 0,
+      publishedDate: !productVariant?.publishedDate
+        ? ""
+        : new Date(productVariant?.publishedDate).toLocaleDateString(),
+      daysSinceActivation: !productVariant?.publishedDate
+        ? ""
+        : this._calcDaysActivation(productVariant?.publishedDate),
+      // sellThru: totalInventoryPurcharsed
+      //   ? Math.ceil((data.unitSold * 10000) / totalInventoryPurcharsed) / 100
+      //   : 100,
       finalSale: productVariant?.tags
         ?.toLocaleLowerCase()
         ?.includes("final sale")
@@ -140,6 +167,52 @@ export class ReportService {
         : "No",
       weeklyAvgRateOfSale: this._calcWeeklyAvgRateOfSale(data, productVariant),
     };
+  }
+
+  mergeRow(datas: LookUpInventoryItemResult[]) {
+    return Object.values(
+      groupBy(datas, (a: LookUpInventoryItemResult) =>
+        JSON.stringify(pick(a, ["sku", "title", "vendor", "productType"]))
+      )
+    ).map((group: LookUpInventoryItemResult[]) => {
+      return group.reduce((acc, cur) => {
+        const fields = Object.keys(
+          omit(cur, [
+            "sku",
+            "title",
+            "vendor",
+            "productType",
+            "publishedDate",
+            "daysSinceActivation",
+          ])
+        );
+        const result = {
+          ...acc,
+          ...fields.reduce(
+            (fieldAcc, key) => ({
+              ...fieldAcc,
+              [key]:
+                (fieldAcc[key] || acc[key] || typeof cur[key] === "string"
+                  ? ""
+                  : 0) + cur[key],
+            }),
+            {}
+          ),
+        } as LookUpInventoryItemResult;
+        return {
+          ...result,
+          grossMargin: result.netSale
+            ? Math.floor((result.grossProfit * 100 * 100) / result.netSale) /
+              100
+            : 0,
+          sellThru: result.totalInventoryPurcharsed
+            ? Math.ceil(
+                (result.unitSold * 10000) / result.totalInventoryPurcharsed
+              ) / 100
+            : 100,
+        };
+      }, pick(group[0], ["sku", "title", "vendor", "productType", "publishedDate", "daysSinceActivation"]));
+    });
   }
 
   mergeLast7DaysData(
@@ -179,7 +252,9 @@ export class ReportService {
         .map((item) => this.mergeLast7DaysData(item, last7DaysData))
         .map((item) => this.lookUpInventoryItemAndCalc(item))
     );
-    const reportData = this.xlsxService.convertArrObj2ArrArr(data);
+    const reportData = this.xlsxService.convertArrObj2ArrArr(
+      this.mergeRow(data.filter(Boolean))
+    );
     const headers = this.xlsxService.getHeader();
 
     const fileName = `${new Date()

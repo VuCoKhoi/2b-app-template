@@ -38,9 +38,7 @@ export class ProductVariantSaleService {
       productType: productVariant?.productType,
       unitSold: orderItem.quantity,
       netSale: Number(orderItem.quantity) * Number(orderItem.price),
-      totalCost:
-        Number(productVariant?.cost) * Number(orderItem.quantity) ||
-        Number(orderItem.quantity) * Number(orderItem.price), //   product variant (cost) * unitSold
+      totalCost: Number(productVariant?.cost) * Number(orderItem.quantity) || 0, //   product variant (cost) * unitSold
     };
   }
 

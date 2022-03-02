@@ -7,10 +7,13 @@ import PaginateList from "../src/components/PaginateList";
 import { Button } from "antd";
 import { DownloadOutlined, DeleteOutlined } from "@ant-design/icons";
 import { prefix } from "./_app";
-import { DiskInfo } from "../src/interfaces";
+import { DiskInfo, ReportHistory } from "../src/interfaces";
+import { useState } from "react";
 
 const Home: NextPage = () => {
+  const [offset, setOffset] = useState(0);
   // const { data: shop } = useSWR("/shop/my");
+  const [exportLoading, setExportLoading] = useState(false);
   const { data: disk } = useSWR<DiskInfo>("/public/disk");
   const { mutate } = useSWRConfig();
 
@@ -27,15 +30,25 @@ const Home: NextPage = () => {
             <div className="flex items-center justify-between h-10"></div>
             <div className="flex justify-center md:block">
               <Button
+                loading={exportLoading}
                 onClick={async () => {
-                  await fetch(`${prefix}/report`, {
+                  setExportLoading(true);
+                  fetch(`${prefix}/report`, {
                     method: "POST",
                     credentials: "same-origin",
                     headers: {
                       "Content-Type": "application/json",
                     },
-                  });
-                  mutate("/report/histories");
+                  })
+                    .then((res) => res.json())
+                    .then((data: ReportHistory) => {
+                      window.open(
+                        `/api/statics/${data.fileName}.xlsx`,
+                        "_blank"
+                      );
+                      mutate(`/report/histories?offset=${offset}`);
+                    })
+                    .finally(() => setExportLoading(false));
                 }}
                 shape="round"
                 icon={<DownloadOutlined />}
@@ -63,7 +76,7 @@ const Home: NextPage = () => {
             </div>
             <div className="block m-auto">
               <div className="flex items-center">
-                <PaginateList />
+                <PaginateList offset={offset} setOffset={setOffset} />
               </div>
             </div>
           </div>

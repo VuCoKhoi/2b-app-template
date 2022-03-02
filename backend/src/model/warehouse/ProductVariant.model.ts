@@ -4,6 +4,7 @@ export interface ProductVariant {
   productId: number; // primary key
   productVariantId: number; // primary key
   title: string;
+  variantTitle: string;
   productType: string;
   cost: number; // ref inventory item
   currentInv: number;
@@ -18,6 +19,7 @@ const productVariantSchema = new Schema<ProductVariant>(
   {
     productVariantId: { type: Number, required: true }, // primary key
     title: String,
+    variantTitle: String,
     productType: String,
     cost: Number, // ref inventory item
     currentInv: Number, // ref inventory item

@@ -35,10 +35,12 @@ export class ProductVariantLookupService {
       .map((product) =>
         product.variants.map((variant) => ({
           ...variant,
-          title:
-            variant.title === "Default Title" ? product.title : variant.title,
+          title: product.title,
+          variantTitle: variant.title,
           productType: product.product_type,
-          publishedDate: new Date(product.published_at),
+          publishedDate: product.published_at
+            ? new Date(product.published_at)
+            : new Date(variant.created_at),
           tags: product.tags,
         }))
       )
@@ -55,6 +57,7 @@ export class ProductVariantLookupService {
           publishedDate: variant.publishedDate,
           tags: variant.tags,
           inventory_item_id: variant.inventory_item_id,
+          variantTitle: variant.variantTitle,
         }))
         .map((variant) => this.getCostProductVariant(variant))
     );
