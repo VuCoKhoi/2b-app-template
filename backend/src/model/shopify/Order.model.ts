@@ -43,7 +43,7 @@ const shopifyOrderSchema = new Schema<ShopifyOrder>(
         currency_code: String,
       },
     },
-    current_total_duties_set: String,
+    current_total_duties_set: mongoose.Schema.Types.Mixed,
     current_total_price: String,
     current_total_price_set: {
       shop_money: {

@@ -24,14 +24,15 @@ export class ShopifyOrderService {
     );
   }
   async saveOrder2Db(datas: ShopifyOrder[]) {
-    return await Promise.all(
-      datas.map((data) =>
-        ShopifyOrderModel.findOneAndUpdate(
-          { id: Number(data.id) },
-          { ...data },
-          { upsert: true, new: true }
-        )
-      )
+    await ShopifyOrderModel.bulkWrite(
+      datas.map((data) => ({
+        updateOne: {
+          filter: { id: Number(data.id) },
+          update: data,
+          upsert: true,
+          setDefaultsOnInsert: true,
+        },
+      }))
     );
   }
 }

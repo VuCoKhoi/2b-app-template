@@ -2,18 +2,16 @@ import { TZ_NAME } from "contants";
 import { CronController, Cron } from "cron-decorators";
 import { CronService } from "services/Cron.service";
 import { ReportService } from "services/Report.service";
-import { XlsxService } from "services/Xlsx.service";
 import { Service } from "typedi";
 
 @Service()
 @CronController("jobs")
 export class JobController {
   constructor(
-    private readonly xlsxService: XlsxService,
     private readonly reportService: ReportService,
     private readonly cronService: CronService
   ) {}
-  @Cron("aggragate", "*/5 * * * *", {
+  @Cron("aggragate", "0 * * * *", {
     timeZone: TZ_NAME,
     runOnInit: true,
   })
