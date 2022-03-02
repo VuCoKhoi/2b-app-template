@@ -79,10 +79,12 @@ export class CrawlerService {
             console.log("\n\n");
 
             do {
+              console.time("getDataTime");
               const newData = await handleGetData({
                 shopifyClient: this.shopifyClient,
                 defaultParams: nextPageParameters,
               });
+              console.timeEnd("getDataTime");
               nextPageParameters = newData.nextPageParameters;
               totalItems += newData.length;
               await handleUpdate(newData);
