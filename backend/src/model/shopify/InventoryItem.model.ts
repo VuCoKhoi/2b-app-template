@@ -31,6 +31,9 @@ const shopifyInventoryItemSchema = new Schema<ShopifyInventoryItem>(
   { timestamps: true }
 );
 
+shopifyInventoryItemSchema.index({ id: 1 });
+shopifyInventoryItemSchema.index({ updatedAt: 1 });
+
 export const ShopifyInventoryItemModel = model<ShopifyInventoryItem>(
   "Shopify-Inventory-Item",
   shopifyInventoryItemSchema

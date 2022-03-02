@@ -364,6 +364,9 @@ const shopifyOrderSchema = new Schema<ShopifyOrder>(
   { timestamps: true }
 );
 
+shopifyOrderSchema.index({ id: 1 });
+shopifyOrderSchema.index({ updatedAt: 1 });
+
 export const ShopifyOrderModel = model<ShopifyOrder>(
   "Shopify-Order",
   shopifyOrderSchema

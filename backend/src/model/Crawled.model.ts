@@ -16,4 +16,6 @@ const crawledSchema = new Schema<Crawled>(
   { timestamps: true }
 );
 
+crawledSchema.index({ crawlerName: 1 });
+
 export const CrawledModel = model<Crawled>("Crawled", crawledSchema);

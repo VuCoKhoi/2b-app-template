@@ -33,6 +33,10 @@ const productVariantSaleSchema = new Schema<ProductVariantSale>(
   { timestamps: true }
 );
 
+productVariantSaleSchema.index({ productVariantId: 1 });
+productVariantSaleSchema.index({ id: 1 });
+productVariantSaleSchema.index({ updatedAt: 1 });
+
 export const ProductVariantSaleModel = model<ProductVariantSale>(
   "Product-Variant-Sale",
   productVariantSaleSchema

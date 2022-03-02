@@ -89,6 +89,9 @@ const shopifyProductSchema = new Schema<ShopifyProduct>(
   { timestamps: true }
 );
 
+shopifyProductSchema.index({ id: 1 });
+shopifyProductSchema.index({ updatedAt: 1 });
+
 export const ShopifyProductModel = model<ShopifyProduct>(
   "Shopify-Product",
   shopifyProductSchema

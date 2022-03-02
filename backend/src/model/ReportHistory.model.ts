@@ -15,6 +15,8 @@ const reportHistorySchema = new Schema<ReportHistory>(
   { timestamps: true }
 );
 
+reportHistorySchema.index({ fileName: 1 });
+
 export const ReportHistoryModel = model<ReportHistory>(
   "Report-History",
   reportHistorySchema
