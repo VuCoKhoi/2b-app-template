@@ -58,10 +58,12 @@ export class ReportService {
   }
 
   async last7DaysData(): Promise<ProductSaleAggregateResult[]> {
+    const last7Days = new Date().getTime() - 7 * ONE_DAY_IN_SECONDS * 1000;
     return await ProductVariantSaleModel.aggregate([
       {
         $match: {
           productVariantId: { $ne: null },
+          date: { $gte: new Date(last7Days) },
         },
       },
       {
@@ -244,8 +246,10 @@ export class ReportService {
   }
 
   async makeReport(isPeriodic = true) {
-    const allData = await this.allTimeData();
-    const last7DaysData = await this.last7DaysData();
+    const [allData, last7DaysData] = await Promise.all([
+      this.allTimeData(),
+      this.last7DaysData(),
+    ]);
 
     const data = await Promise.all(
       allData
