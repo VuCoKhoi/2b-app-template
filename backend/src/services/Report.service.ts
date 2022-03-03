@@ -230,7 +230,7 @@ export class ReportService {
     );
     return {
       ...data,
-      lastWeekSaleUnit: last7DayData?.unitSold,
+      lastWeekSaleUnit: last7DayData?.unitSold || 0,
     };
   }
 
