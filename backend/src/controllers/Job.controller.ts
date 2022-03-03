@@ -11,7 +11,7 @@ export class JobController {
     private readonly reportService: ReportService,
     private readonly cronService: CronService
   ) {}
-  @Cron("aggragate", "0 * * * *", {
+  @Cron("aggragate", "*/5 * * * *", {
     timeZone: TZ_NAME,
     runOnInit: true,
   })
