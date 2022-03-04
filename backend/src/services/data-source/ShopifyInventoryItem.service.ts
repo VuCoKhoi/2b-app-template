@@ -4,11 +4,48 @@ import {
   ShopifyInventoryItemModel,
 } from "model/shopify/InventoryItem.model";
 import { ShopifyProductModel } from "model/shopify/Product.model";
+import { ShopifyClientRepository } from "repository/ShopifyClient.repository";
+import { ShopService } from "services/Shop.service";
 import Shopify from "shopify-api-node";
 import { Service } from "typedi";
 
 @Service()
 export class ShopifyInventoryItemService {
+  shopifyClient: Shopify;
+
+  constructor(
+    private readonly shopifyClientRepository: ShopifyClientRepository,
+    private readonly shopService: ShopService
+  ) {}
+
+  async createClient() {
+    if (this.shopifyClient) return;
+    const shop = await this.shopService.findOne({
+      myshopify_domain: process.env.SHOP,
+    });
+    this.shopifyClient = this.shopifyClientRepository.createShopifyClient({
+      name: shop?.myshopify_domain,
+      accessToken: shop?.accessToken,
+    });
+  }
+
+  async getInventoryItem(inventoryItemId: number) {
+    let inventoryItem = (await ShopifyInventoryItemModel.findOne(
+      {
+        id: inventoryItemId,
+      },
+      { _id: 0 }
+    ).lean()) as Shopify.IInventoryItem;
+    if (!inventoryItem) {
+      await this.createClient();
+      inventoryItem = await this.shopifyClient.inventoryItem.get(
+        inventoryItemId
+      );
+      if (inventoryItem) await this.saveInventoryItem2Db([inventoryItem]);
+    }
+
+    return inventoryItem;
+  }
   async getOneInventoryItemInDB(query: Partial<ShopifyInventoryItem>) {
     return await ShopifyInventoryItemModel.findOne(query).lean();
   }

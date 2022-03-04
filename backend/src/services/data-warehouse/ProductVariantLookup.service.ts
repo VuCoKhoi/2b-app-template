@@ -4,10 +4,14 @@ import {
   ProductVariant,
   ProductVariantModel,
 } from "model/warehouse/ProductVariant.model";
+import { ShopifyInventoryItemService } from "services/data-source/ShopifyInventoryItem.service";
 import { Service } from "typedi";
 
 @Service()
 export class ProductVariantLookupService {
+  constructor(
+    private readonly shopifyInventoryItemService: ShopifyInventoryItemService
+  ) {}
   async saveProductVariant2Db(productVariants: ProductVariant[]) {
     return await Promise.all(
       productVariants.map((variant) =>
@@ -24,9 +28,10 @@ export class ProductVariantLookupService {
     variant: Omit<ProductVariant, "cost"> & { inventory_item_id: number }
   ): Promise<ProductVariant> {
     const { inventory_item_id } = variant;
-    const inventoryItem = await ShopifyInventoryItemModel.findOne({
-      id: inventory_item_id,
-    }).lean();
+    const inventoryItem =
+      await this.shopifyInventoryItemService.getInventoryItem(
+        inventory_item_id
+      );
     return { ...variant, cost: Number(inventoryItem?.cost || 0) };
   }
 
