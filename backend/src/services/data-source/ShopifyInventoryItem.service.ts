@@ -64,7 +64,7 @@ export class ShopifyInventoryItemService {
   private async _getInventoryItemIds(
     minProductId: number,
     updatedAtMin: Date,
-    limit = 3
+    limit = 10
   ): Promise<{ ids: number[]; nextProductId: number }> {
     let products = [];
 
