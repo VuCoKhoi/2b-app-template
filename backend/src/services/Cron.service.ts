@@ -19,14 +19,14 @@ export class CronService {
   ) {}
 
   async checkCronRunning(name: ECronName) {
-    return await CronModel.findOneAndUpdate({
+    return await CronModel.findOne({
       name,
       status: ECronStatus.RUNNING,
     });
   }
   async cronStart(name: ECronName) {
     await CronModel.findOneAndUpdate(
-      { name, status: ECronStatus.RUNNING },
+      { name },
       { name, status: ECronStatus.RUNNING },
       { new: true, upsert: true }
     );
@@ -39,7 +39,7 @@ export class CronService {
     const isRunning = await this.checkCronRunning(ECronName.ORDER_ITEM);
     if (isRunning) return;
     await this.cronStart(ECronName.ORDER_ITEM);
-    const limit = 20;
+    const limit = 50;
     let hasNextPage = true;
     let skip = 0;
     const [lastProductVariantSaleUpdated] = await ProductVariantSaleModel.find()
@@ -81,7 +81,7 @@ export class CronService {
     const isRunning = await this.checkCronRunning(ECronName.PRODUCT_VARIANT);
     if (isRunning) return;
     await this.cronStart(ECronName.PRODUCT_VARIANT);
-    const limit = 20;
+    const limit = 50;
     let hasNextPage = true;
     let skip = 0;
     const inventoryItemCrawler = await CrawledModel.findOne({
