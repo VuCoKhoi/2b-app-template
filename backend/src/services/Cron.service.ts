@@ -1,3 +1,4 @@
+import { startCron } from "cron-decorators";
 import { CrawledModel } from "model/Crawled.model";
 import { CronModel } from "model/Cron.model";
 import { ShopifyOrderModel } from "model/shopify/Order.model";
@@ -37,6 +38,7 @@ export class CronService {
   async aggregateOrderItems() {
     const isRunning = await this.checkCronRunning(ECronName.ORDER_ITEM);
     if (isRunning) return;
+    await this.cronStart(ECronName.ORDER_ITEM);
     const limit = 20;
     let hasNextPage = true;
     let skip = 0;
@@ -70,12 +72,15 @@ export class CronService {
         hasNextPage = false;
       }
     }
+    await this.cronFinish(ECronName.ORDER_ITEM);
+
     //1. get all order in range
   }
 
   async aggragteProductVariants() {
     const isRunning = await this.checkCronRunning(ECronName.PRODUCT_VARIANT);
     if (isRunning) return;
+    await this.cronStart(ECronName.PRODUCT_VARIANT);
     const limit = 20;
     let hasNextPage = true;
     let skip = 0;
@@ -111,5 +116,6 @@ export class CronService {
         hasNextPage = false;
       }
     }
+    await this.cronFinish(ECronName.PRODUCT_VARIANT);
   }
 }
