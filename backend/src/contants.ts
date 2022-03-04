@@ -25,7 +25,7 @@ export const HEADERS = {
   publishedDate: "Published Date",
   daysSinceActivation: "Days since activation date",
   sellThru: "Sell Thru %",
-  lastWeekSaleUnit: "LW SALES UNITS",
+  lastWeekSaleUnit: "Last 7 days sales",
   weeklyAvgRateOfSale: "WARS (Weekly avg rate of sale)",
   finalSale: "Final Sale",
 };

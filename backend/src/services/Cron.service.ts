@@ -1,7 +1,11 @@
+import { CrawledModel } from "model/Crawled.model";
+import { CronModel } from "model/Cron.model";
 import { ShopifyOrderModel } from "model/shopify/Order.model";
 import { ShopifyProductModel } from "model/shopify/Product.model";
 import { ProductVariantModel } from "model/warehouse/ProductVariant.model";
 import { ProductVariantSaleModel } from "model/warehouse/ProductVariantSale.model";
+import { CrawlerName } from "shares/enums/crawler";
+import { ECronName, ECronStatus } from "shares/enums/cron";
 import { Service } from "typedi";
 import { ProductVariantLookupService } from "./data-warehouse/ProductVariantLookup.service";
 import { ProductVariantSaleService } from "./data-warehouse/ProductVariantSale.service";
@@ -12,31 +16,27 @@ export class CronService {
     private readonly productVariantLookupService: ProductVariantLookupService,
     private readonly productVariantSaleService: ProductVariantSaleService
   ) {}
+
+  async checkCronRunning(name: ECronName) {
+    return await CronModel.findOneAndUpdate({
+      name,
+      status: ECronStatus.RUNNING,
+    });
+  }
+  async cronStart(name: ECronName) {
+    await CronModel.findOneAndUpdate(
+      { name, status: ECronStatus.RUNNING },
+      { name, status: ECronStatus.RUNNING },
+      { new: true, upsert: true }
+    );
+  }
+  async cronFinish(name) {
+    await CronModel.findOneAndUpdate({ name }, { status: ECronStatus.FINISH });
+  }
+
   async aggregateOrderItems() {
-    // date: number; // primary key
-    // productVariantId: number; // primary key
-    // sku: string; // primary key
-    // vendor: string; // primary key
-    // //   title: string;  // primary key   => ref product
-    // //   productType: string;  // primary key  => ref product
-
-    // unitSold: number; // quantity
-    // // currentInv: number;   // ref inventory item
-    // // totalInventoryPurcharsed: number;   // clac = unitSold + currentInv
-    // netSale: number;
-    // //   totalCost: number;   aggregate product variant (cost) * unitSold
-
-    // const now = formatWithTzOffset(new Date());
-    // const nowHourStart = setStartHour(now);
-    // const nowHourEnd = setStartHour(now);
-
-    // const lastHourStart = new Date(
-    //   new Date(nowHourStart).getTime() - ONE_HOUR_IN_SECONDS
-    // );
-    // const lastHourEnd = new Date(
-    //   new Date(nowHourEnd).getTime() - ONE_HOUR_IN_SECONDS
-    // );
-
+    const isRunning = await this.checkCronRunning(ECronName.ORDER_ITEM);
+    if (isRunning) return;
     const limit = 20;
     let hasNextPage = true;
     let skip = 0;
@@ -74,10 +74,17 @@ export class CronService {
   }
 
   async aggragteProductVariants() {
+    const isRunning = await this.checkCronRunning(ECronName.PRODUCT_VARIANT);
+    if (isRunning) return;
     const limit = 20;
     let hasNextPage = true;
     let skip = 0;
-    const [lastProductVariantUpdated] = await ProductVariantModel.find()
+    const inventoryItemCrawler = await CrawledModel.findOne({
+      crawlerName: CrawlerName.InventoryItem,
+    }).lean();
+    const [lastProductVariantUpdated] = await ProductVariantModel.find({
+      updatedAt: { $gte: inventoryItemCrawler.previousSyncTime },
+    })
       .sort({ updatedAt: -1 })
       .limit(1);
     const lastUpdatedAt = new Date(lastProductVariantUpdated?.updatedAt ?? 0);

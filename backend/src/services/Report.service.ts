@@ -18,10 +18,12 @@ import { XlsxService } from "./Xlsx.service";
 export class ReportService {
   constructor(private readonly xlsxService: XlsxService) {}
   async allTimeData(): Promise<ProductSaleAggregateResult[]> {
+    const startOfYear = new Date(formatWithTzOffset(setStartYear(new Date())));
     return await ProductVariantSaleModel.aggregate([
       {
         $match: {
           productVariantId: { $ne: null },
+          date: { $gte: startOfYear },
         },
       },
       {
@@ -204,13 +206,13 @@ export class ReportService {
         return {
           ...result,
           grossMargin: result.netSale
-            ? Math.floor((result.grossProfit * 100 * 100) / result.netSale) /
-              100
+            ? Math.floor((result.grossProfit * 100 * 10) / result.netSale) /
+                10 || 0
             : 0,
           sellThru: result.totalInventoryPurcharsed
             ? Math.ceil(
-                (result.unitSold * 10000) / result.totalInventoryPurcharsed
-              ) / 100
+                (result.unitSold * 100) / result.totalInventoryPurcharsed
+              )
             : 100,
         };
       }, pick(group[0], ["sku", "title", "vendor", "productType", "publishedDate", "daysSinceActivation"]));

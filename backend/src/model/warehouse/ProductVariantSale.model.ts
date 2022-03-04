@@ -11,6 +11,7 @@ export interface ProductVariantSale {
   unitSold: number; // quantity
   // currentInv: number;   // ref inventory item
   // totalInventoryPurcharsed: number;   // clac = unitSold + currentInv
+  discount: number;
   netSale: number;
   totalCost: number; //  product variant (cost) * unitSold
   updatedAt?: Date;
@@ -27,6 +28,7 @@ const productVariantSaleSchema = new Schema<ProductVariantSale>(
     vendor: { type: String, required: true },
     productType: { type: String, required: true },
     unitSold: { type: Number, default: 0 },
+    discount: { default: 0, type: Number },
     netSale: { type: Number, default: 0 },
     totalCost: { type: Number, default: 0 },
   },

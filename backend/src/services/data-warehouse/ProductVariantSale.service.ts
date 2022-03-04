@@ -7,7 +7,11 @@ import {
   ProductVariantSale,
   ProductVariantSaleModel,
 } from "model/warehouse/ProductVariantSale.model";
-import { IOrderLineItem, IRefundLineItem } from "shopify-api-node";
+import {
+  ILineItemDiscountAllocation,
+  IOrderLineItem,
+  IRefundLineItem,
+} from "shopify-api-node";
 import { Service } from "typedi";
 
 interface CustomIOrderLineItem extends IOrderLineItem {
@@ -25,7 +29,9 @@ export class ProductVariantSaleService {
   }
 
   private _convert2ProductSale(
-    orderItem: CustomIOrderLineItem,
+    orderItem: CustomIOrderLineItem & {
+      discount: number;
+    },
     productVariant: ProductVariant
   ) {
     return {
@@ -37,9 +43,19 @@ export class ProductVariantSaleService {
       title: productVariant?.title || orderItem.title,
       productType: productVariant?.productType,
       unitSold: orderItem.quantity,
-      netSale: Number(orderItem.quantity) * Number(orderItem.price),
+      netSale:
+        Number(orderItem.quantity) * Number(orderItem.price) -
+        (orderItem?.discount || 0),
       totalCost: Number(productVariant?.cost) * Number(orderItem.quantity) || 0, //   product variant (cost) * unitSold
+      discount: orderItem.discount,
     };
+  }
+
+  private _calcDiscount(discount_allocations: ILineItemDiscountAllocation[]) {
+    return discount_allocations.reduce(
+      (acc, cur) => acc + Number(cur.amount),
+      0
+    );
   }
 
   private _finalLineItems(
@@ -55,11 +71,15 @@ export class ProductVariantSaleService {
         (variant) =>
           Number(variant.productVariantId) === Number(item.variant_id)
       );
+      const quantity = this._refundItems(item.quantity, refundLineItem);
 
       return this._convert2ProductSale(
         {
           ...item,
-          quantity: this._refundItems(item.quantity, refundLineItem),
+          quantity,
+          discount: quantity
+            ? this._calcDiscount(item.discount_allocations)
+            : 0,
         },
         productVariant
       );

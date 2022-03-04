@@ -17,6 +17,7 @@ export class JobController {
   })
   public async aggregateDataCronJob(): Promise<void> {
     console.log("aggregateDataCronJob start: ", new Date().toISOString());
+
     await this.cronService.aggragteProductVariants();
     await this.cronService.aggregateOrderItems();
     console.log("aggregateDataCronJob finish: ", new Date().toISOString());
