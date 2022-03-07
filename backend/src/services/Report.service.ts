@@ -24,6 +24,7 @@ export class ReportService {
         $match: {
           productVariantId: { $ne: null },
           date: { $gte: startOfYear },
+          title: { $nin: ["Gift Card"] },
         },
       },
       {
@@ -66,6 +67,7 @@ export class ReportService {
         $match: {
           productVariantId: { $ne: null },
           date: { $gte: new Date(last7Days) },
+          title: { $nin: ["Gift Card"] },
         },
       },
       {
