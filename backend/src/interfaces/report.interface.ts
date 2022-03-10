@@ -11,9 +11,11 @@ export interface ProductSaleAggregateResult {
 }
 
 export interface LookUpInventoryItemResult extends ProductSaleAggregateResult {
+  vendor: string;
   title: string;
   variantTitle: string;
   currentInv: number;
+  totalCostCurrentInv: number;
   totalInventoryPurcharsed: number;
   grossProfit: number;
   // grossMargin: number;

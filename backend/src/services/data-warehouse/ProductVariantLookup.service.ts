@@ -1,4 +1,3 @@
-import { ShopifyInventoryItemModel } from "model/shopify/InventoryItem.model";
 import { ShopifyProduct } from "model/shopify/Product.model";
 import {
   ProductVariant,
@@ -40,6 +39,7 @@ export class ProductVariantLookupService {
       .map((product) =>
         product.variants.map((variant) => ({
           ...variant,
+          vendor: product.vendor,
           title: product.title,
           variantTitle: variant.title,
           productType: product.product_type,
@@ -47,6 +47,7 @@ export class ProductVariantLookupService {
             ? new Date(product.published_at)
             : new Date(variant.created_at),
           tags: product.tags,
+          status: product.status,
         }))
       )
       .flat();
@@ -63,6 +64,9 @@ export class ProductVariantLookupService {
           tags: variant.tags,
           inventory_item_id: variant.inventory_item_id,
           variantTitle: variant.variantTitle,
+          vendor: variant.vendor,
+          status: variant.status,
+          sku: variant.sku?.split("-")[0],
         }))
         .map((variant) => this.getCostProductVariant(variant))
     );

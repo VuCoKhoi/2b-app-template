@@ -38,7 +38,7 @@ export class ProductVariantSaleService {
       id: orderItem.id,
       date: orderItem.created_at,
       productVariantId: orderItem.variant_id,
-      sku: orderItem.sku,
+      sku: productVariant?.sku,
       vendor: orderItem.vendor,
       title: productVariant?.title || orderItem.title,
       productType: productVariant?.productType,
@@ -77,6 +77,7 @@ export class ProductVariantSaleService {
         {
           ...item,
           quantity,
+          vendor: productVariant?.vendor,
           discount: quantity
             ? this._calcDiscount(item.discount_allocations)
             : 0,

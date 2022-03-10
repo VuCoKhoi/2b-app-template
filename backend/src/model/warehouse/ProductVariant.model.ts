@@ -10,6 +10,9 @@ export interface ProductVariant {
   currentInv: number;
   publishedDate: Date;
   tags: string;
+  vendor: string;
+  status: string;
+  sku: string; // primary key
 
   updatedAt?: Date;
   createdAt?: Date;
@@ -21,10 +24,13 @@ const productVariantSchema = new Schema<ProductVariant>(
     title: String,
     variantTitle: String,
     productType: String,
+    status: String,
+    sku: String, // primary key
     cost: Number, // ref inventory item
     currentInv: Number, // ref inventory item
     publishedDate: Date,
     tags: String,
+    vendor: String,
   },
   { timestamps: true }
 );

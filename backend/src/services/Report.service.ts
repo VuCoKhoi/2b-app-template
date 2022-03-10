@@ -1,4 +1,4 @@
-import { ONE_DAY_IN_SECONDS } from "contants";
+import { ONE_DAY_IN_SECONDS, PRODUCT_ACTIVE_STATUS } from "contants";
 import {
   LookUpInventoryItemResult,
   ProductSaleAggregateResult,
@@ -33,7 +33,7 @@ export class ReportService {
             sku: "$sku",
             productVariantId: "$productVariantId",
             title: "$title", // lookup
-            variantTitle: "$variantTitle", // lookup
+            // variantTitle: "$variantTitle", // lookup
             vendor: "$vendor",
             productType: "$productType",
           },
@@ -76,7 +76,7 @@ export class ReportService {
             sku: "$sku",
             productVariantId: "$productVariantId",
             title: "$title", // lookup
-            variantTitle: "$variantTitle", // lookup
+            // variantTitle: "$variantTitle", // lookup
             vendor: "$vendor",
             productType: "$productType",
           },
@@ -140,32 +140,34 @@ export class ReportService {
   ): Promise<LookUpInventoryItemResult> {
     const productVariant = await ProductVariantModel.findOne({
       productVariantId: data.productVariantId,
+      status: PRODUCT_ACTIVE_STATUS,
     }).lean();
 
-    if (!productVariant) return null;
+    if (
+      !productVariant ||
+      productVariant?.tags?.toLocaleLowerCase()?.includes("final sale")
+    )
+      return null;
 
     const grossProfit = data.netSale - data.totalCost;
     const totalInventoryPurcharsed =
       (productVariant?.currentInv || 0) + (data.unitSold || 0);
     return {
       ...data,
+      vendor: productVariant?.vendor,
       title: productVariant?.title || data.title,
       variantTitle: productVariant?.variantTitle || data.variantTitle,
       currentInv: productVariant?.currentInv || 0,
+      totalCostCurrentInv:
+        Number(productVariant?.cost) * Number(productVariant?.currentInv) || 0, //   product variant (cost) * unitSold
       totalInventoryPurcharsed,
       grossProfit: grossProfit || 0,
-      // grossMargin: data.netSale
-      //   ? Math.floor((grossProfit * 100 * 100) / data.netSale) / 100
-      //   : 0,
       publishedDate: !productVariant?.publishedDate
         ? ""
         : new Date(productVariant?.publishedDate).toLocaleDateString(),
       daysSinceActivation: !productVariant?.publishedDate
         ? ""
         : this._calcDaysActivation(productVariant?.publishedDate),
-      // sellThru: totalInventoryPurcharsed
-      //   ? Math.ceil((data.unitSold * 10000) / totalInventoryPurcharsed) / 100
-      //   : 100,
       finalSale: productVariant?.tags
         ?.toLocaleLowerCase()
         ?.includes("final sale")
@@ -178,13 +180,12 @@ export class ReportService {
   mergeRow(datas: LookUpInventoryItemResult[]) {
     return Object.values(
       groupBy(datas, (a: LookUpInventoryItemResult) =>
-        JSON.stringify(pick(a, ["sku", "title", "vendor", "productType"]))
+        JSON.stringify(pick(a, ["title", "productType"]))
       )
     ).map((group: LookUpInventoryItemResult[]) => {
       return group.reduce((acc, cur) => {
         const fields = Object.keys(
           omit(cur, [
-            "sku",
             "title",
             "vendor",
             "productType",
@@ -197,10 +198,7 @@ export class ReportService {
           ...fields.reduce(
             (fieldAcc, key) => ({
               ...fieldAcc,
-              [key]:
-                (fieldAcc[key] || acc[key] || typeof cur[key] === "string"
-                  ? ""
-                  : 0) + cur[key],
+              [key]: (typeof cur[key] === "string" ? "" : 0) + cur[key],
             }),
             {}
           ),
@@ -217,7 +215,7 @@ export class ReportService {
               )
             : 100,
         };
-      }, pick(group[0], ["sku", "title", "vendor", "productType", "publishedDate", "daysSinceActivation"]));
+      }, pick(group[0], ["title", "vendor", "productType", "publishedDate", "daysSinceActivation"]));
     });
   }
 
@@ -229,7 +227,6 @@ export class ReportService {
       (item) =>
         item.sku === data.sku &&
         item.productVariantId === data.productVariantId &&
-        item.vendor === data.vendor &&
         item.productType === data.productType
     );
     return {

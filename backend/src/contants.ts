@@ -4,6 +4,7 @@ export const SHOPIFY_API_LIMIT_DOCS = 250;
 export const NEXT_TICK_TIMEOUT = 10 * 1000;
 export const TZ_OFFSET = "-06:00";
 export const TZ_NAME = "Pacific/Easter";
+export const PRODUCT_ACTIVE_STATUS = "active";
 
 export const ONE_MUNITE_IN_SECONDS = 60;
 export const ONE_HOUR_IN_SECONDS = ONE_MUNITE_IN_SECONDS * 60;
@@ -17,6 +18,7 @@ export const HEADERS = {
   productType: "Product Type",
   totalInventoryPurcharsed: "Total Inv Purchased (incl Restocks)",
   currentInv: "Current Inventory",
+  totalCostCurrentInv: "Total Cost of Current Inventory",
   unitSold: "Net Quantity Sold 2022",
   netSale: "Net Sales $",
   totalCost: "Total Cost",
