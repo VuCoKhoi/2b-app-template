@@ -150,21 +150,28 @@ export class ReportService {
       return null;
 
     const grossProfit = data.netSale - data.totalCost;
+    const currentInv = productVariant?.currentInv || 0;
     const totalInventoryPurcharsed =
       (productVariant?.currentInv || 0) + (data.unitSold || 0);
+    const weeklyAvgRateOfSale = this._calcWeeklyAvgRateOfSale(
+      data,
+      productVariant
+    );
     return {
       ...data,
       vendor: productVariant?.vendor,
       title: productVariant?.title || data.title,
       variantTitle: productVariant?.variantTitle || data.variantTitle,
-      currentInv: productVariant?.currentInv || 0,
+      currentInv,
       totalCostCurrentInv:
         Number(productVariant?.cost) * Number(productVariant?.currentInv) || 0, //   product variant (cost) * unitSold
       totalInventoryPurcharsed,
       grossProfit: grossProfit || 0,
       publishedDate: !productVariant?.publishedDate
         ? ""
-        : new Date(productVariant?.publishedDate).toLocaleDateString(),
+        : new Date(
+            formatWithTzOffset(productVariant?.publishedDate)
+          ).toLocaleDateString(),
       daysSinceActivation: !productVariant?.publishedDate
         ? ""
         : this._calcDaysActivation(productVariant?.publishedDate),
@@ -173,7 +180,8 @@ export class ReportService {
         ?.includes("final sale")
         ? "Yes"
         : "No",
-      weeklyAvgRateOfSale: this._calcWeeklyAvgRateOfSale(data, productVariant),
+      weeklyAvgRateOfSale,
+      wos: Math.floor((currentInv * 10) / weeklyAvgRateOfSale) * 10,
     };
   }
 
@@ -198,7 +206,8 @@ export class ReportService {
           ...fields.reduce(
             (fieldAcc, key) => ({
               ...fieldAcc,
-              [key]: (typeof cur[key] === "string" ? "" : 0) + cur[key],
+              [key]:
+                (typeof cur[key] === "string" ? "" : acc[key] || 0) + cur[key],
             }),
             {}
           ),

@@ -24,4 +24,5 @@ export interface LookUpInventoryItemResult extends ProductSaleAggregateResult {
   // sellThru: number;
   finalSale: string;
   weeklyAvgRateOfSale: number;
+  wos: number;
 }

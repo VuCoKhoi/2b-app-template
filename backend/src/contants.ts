@@ -16,13 +16,13 @@ export const HEADERS = {
   // variantTitle: "Variant Title", // lookup
   vendor: "Vendor",
   productType: "Product Type",
+  totalCostCurrentInv: "Total Cost of Current Inventory $",
   totalInventoryPurcharsed: "Total Inv Purchased (incl Restocks)",
   currentInv: "Current Inventory",
-  totalCostCurrentInv: "Total Cost of Current Inventory",
   unitSold: "Net Quantity Sold 2022",
   netSale: "Net Sales $",
-  totalCost: "Total Cost",
-  grossProfit: "Gross Profit",
+  totalCost: "Total Cost $",
+  grossProfit: "Total Gross Profit $",
   grossMargin: "Gross Margin %",
   publishedDate: "Published Date",
   daysSinceActivation: "Days since activation date",
@@ -30,4 +30,5 @@ export const HEADERS = {
   lastWeekSaleUnit: "Last 7 days sales",
   weeklyAvgRateOfSale: "WARS (Weekly avg rate of sale)",
   finalSale: "Final Sale",
+  wos: "WOS",
 };
