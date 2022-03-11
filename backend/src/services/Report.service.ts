@@ -109,19 +109,19 @@ export class ReportService {
 
   private _calcWeeklyAvgRateOfSale(
     data: ProductSaleAggregateResult,
-    productVariant: ProductVariant
+    normalPublishedDate: string
   ) {
     // (If published date is before 1/1/2022 then formula is (Net Qty sold)/# of days in 2022 *7)
     // (if published date is after 1/1/2022 then formula is (Net Qty sold/Days Active)*7)
     let daysDivide = 1;
     const publishedDate = new Date(
-      formatWithTzOffset(new Date(productVariant?.publishedDate || new Date()))
+      formatWithTzOffset(new Date(normalPublishedDate || new Date()))
     ).getTime();
     const now = new Date(formatWithTzOffset(new Date())).getTime();
     const startOfYear = new Date(
       formatWithTzOffset(setStartYear(new Date()))
     ).getTime();
-    if (productVariant?.publishedDate) {
+    if (normalPublishedDate) {
       if (publishedDate < startOfYear) {
         daysDivide = Math.floor(
           (now - startOfYear) / (ONE_DAY_IN_SECONDS * 1000)
@@ -153,10 +153,7 @@ export class ReportService {
     const currentInv = productVariant?.currentInv || 0;
     const totalInventoryPurcharsed =
       (productVariant?.currentInv || 0) + (data.unitSold || 0);
-    const weeklyAvgRateOfSale = this._calcWeeklyAvgRateOfSale(
-      data,
-      productVariant
-    );
+
     return {
       ...data,
       vendor: productVariant?.vendor,
@@ -181,8 +178,8 @@ export class ReportService {
         ?.includes("final sale")
         ? "Yes"
         : "No",
-      weeklyAvgRateOfSale,
-      wos: Math.floor((currentInv * 10) / weeklyAvgRateOfSale) / 10,
+      weeklyAvgRateOfSale: 0,
+      wos: 0,
     };
   }
 
@@ -192,7 +189,7 @@ export class ReportService {
         JSON.stringify(pick(a, ["title", "productType"]))
       )
     ).map((group: LookUpInventoryItemResult[]) => {
-      return group.reduce((acc, cur) => {
+      const result = group.reduce((acc, cur) => {
         const fields = Object.keys(
           omit(cur, [
             "title",
@@ -200,6 +197,7 @@ export class ReportService {
             "productType",
             "publishedDate",
             "daysSinceActivation",
+            "wos",
           ])
         );
         const result = {
@@ -225,7 +223,14 @@ export class ReportService {
               )
             : 100,
         };
-      }, pick(group[0], ["title", "vendor", "productType", "publishedDate", "daysSinceActivation"]));
+      }, pick(group[0], ["title", "vendor", "productType", "publishedDate", "daysSinceActivation", "wos"])) as LookUpInventoryItemResult;
+      const weeklyAvgRateOfSale = this._calcWeeklyAvgRateOfSale(
+        result,
+        result.publishedDate
+      );
+      const wos =
+        Math.floor((result.currentInv * 10) / weeklyAvgRateOfSale) / 10;
+      return { ...result, wos, weeklyAvgRateOfSale };
     });
   }
 
