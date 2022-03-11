@@ -1,6 +1,7 @@
 import { Schema, model } from "mongoose";
 
 export interface ProductVariantSale {
+  order_id: number;
   id: number;
   date: Date; // order date
   productVariantId: number; // primary key
@@ -20,6 +21,7 @@ export interface ProductVariantSale {
 
 const productVariantSaleSchema = new Schema<ProductVariantSale>(
   {
+    order_id: Number,
     id: { type: Number, required: true },
     date: { type: Date, required: true },
     productVariantId: { type: Number, required: true },

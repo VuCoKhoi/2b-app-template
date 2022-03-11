@@ -16,6 +16,7 @@ import { Service } from "typedi";
 
 interface CustomIOrderLineItem extends IOrderLineItem {
   created_at: Date;
+  order_id: number;
 }
 
 @Service()
@@ -48,6 +49,7 @@ export class ProductVariantSaleService {
         (orderItem?.discount || 0),
       totalCost: Number(productVariant?.cost) * Number(orderItem.quantity) || 0, //   product variant (cost) * unitSold
       discount: orderItem.discount,
+      order_id: orderItem.order_id,
     };
   }
 
@@ -87,11 +89,13 @@ export class ProductVariantSaleService {
     });
   }
   async lookUpOrderItems(orders: ShopifyOrder[]) {
+    const orderIds = orders.map((order) => Number(order.id));
     const allLineItems = orders
       .map((order) =>
         order.line_items.map((item) => ({
           ...item,
           created_at: new Date(order.created_at),
+          order_id: order.id,
         }))
       )
       .flat();
@@ -105,6 +109,8 @@ export class ProductVariantSaleService {
     const productVariants = await ProductVariantModel.find({
       productVariantId: { $in: listProductVariantIds },
     }).lean();
+
+    await this.deleteByOrderIds(orderIds);
 
     return this._finalLineItems(
       allLineItems,
@@ -123,5 +129,9 @@ export class ProductVariantSaleService {
         )
       )
     );
+  }
+
+  async deleteByOrderIds(orderIds: number[]) {
+    await ProductVariantSaleModel.deleteMany({ order_id: { $in: orderIds } });
   }
 }
