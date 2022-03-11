@@ -93,7 +93,11 @@ export class CronService {
     })
       .sort({ updatedAt: -1 })
       .limit(1);
-    const lastUpdatedAt = new Date(lastProductVariantUpdated?.updatedAt ?? 0);
+    const lastUpdatedAt = new Date(
+      lastProductVariantUpdated?.updatedAt ??
+        inventoryItemCrawler?.previousSyncTime ??
+        0
+    );
     while (hasNextPage) {
       const products = await ShopifyProductModel.find({
         updatedAt: { $gt: lastUpdatedAt },
