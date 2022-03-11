@@ -1,4 +1,4 @@
-import { ONE_DAY_IN_SECONDS, PRODUCT_ACTIVE_STATUS } from "contants";
+import { ONE_DAY_IN_SECONDS, PRODUCT_ACTIVE_STATUS, TZ_NAME } from "contants";
 import {
   LookUpInventoryItemResult,
   ProductSaleAggregateResult,
@@ -101,7 +101,7 @@ export class ReportService {
   }
 
   private _calcDaysActivation(publishedDate: string | Date) {
-    return Math.ceil(
+    return Math.floor(
       (new Date().getTime() - new Date(publishedDate).getTime()) /
         (ONE_DAY_IN_SECONDS * 1000)
     );
@@ -123,11 +123,11 @@ export class ReportService {
     ).getTime();
     if (productVariant?.publishedDate) {
       if (publishedDate < startOfYear) {
-        daysDivide = Math.ceil(
+        daysDivide = Math.floor(
           (now - startOfYear) / (ONE_DAY_IN_SECONDS * 1000)
         );
       } else {
-        daysDivide = Math.ceil(
+        daysDivide = Math.floor(
           (now - publishedDate) / (ONE_DAY_IN_SECONDS * 1000)
         );
       }
@@ -169,9 +169,10 @@ export class ReportService {
       grossProfit: grossProfit || 0,
       publishedDate: !productVariant?.publishedDate
         ? ""
-        : new Date(
-            formatWithTzOffset(productVariant?.publishedDate)
-          ).toLocaleDateString(),
+        : new Date(productVariant?.publishedDate).toLocaleDateString(
+            "default",
+            { timeZone: TZ_NAME }
+          ),
       daysSinceActivation: !productVariant?.publishedDate
         ? ""
         : this._calcDaysActivation(productVariant?.publishedDate),
@@ -219,7 +220,7 @@ export class ReportService {
                 10 || 0
             : 0,
           sellThru: result.totalInventoryPurcharsed
-            ? Math.ceil(
+            ? Math.floor(
                 (result.unitSold * 100) / result.totalInventoryPurcharsed
               )
             : 100,
