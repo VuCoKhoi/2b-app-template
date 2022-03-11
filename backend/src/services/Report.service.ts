@@ -182,7 +182,7 @@ export class ReportService {
         ? "Yes"
         : "No",
       weeklyAvgRateOfSale,
-      wos: Math.floor((currentInv * 10) / weeklyAvgRateOfSale) * 10,
+      wos: Math.floor((currentInv * 10) / weeklyAvgRateOfSale) / 10,
     };
   }
 
