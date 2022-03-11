@@ -125,10 +125,17 @@ export class CrawlerService {
           )
         );
 
+        const updatedAtMin = new Date(
+          Math.max(
+            new Date("2021-12-31T00:00:00.000Z").getTime(),
+            (await this._getPreviousSyncTime(crawlerName)).getTime()
+          )
+        );
+
         return await this.shopifyOrderService.getOrders(
           shopifyClient,
           {
-            updated_at_min: await this._getPreviousSyncTime(crawlerName),
+            updated_at_min: updatedAtMin,
             updated_at_max: updatedAtMax,
           },
           nextPageParameters

@@ -51,6 +51,7 @@ export class CronService {
     while (hasNextPage) {
       const orders = await ShopifyOrderModel.find({
         updatedAt: { $gt: lastUpdatedAt },
+        created_at: { $gte: new Date("2021-12-31T00:00:00.000Z").getTime() },
         test: false,
       })
         .skip(skip)
