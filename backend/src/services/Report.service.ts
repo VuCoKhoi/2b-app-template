@@ -5,6 +5,7 @@ import {
 } from "interfaces/report.interface";
 import { groupBy, omit, pick } from "lodash";
 import { ReportHistory, ReportHistoryModel } from "model/ReportHistory.model";
+import { FilterQuery } from "mongoose";
 import {
   ProductVariant,
   ProductVariantModel,
@@ -98,6 +99,17 @@ export class ReportService {
         },
       },
     ]);
+  }
+
+  async allActiveProductVariantData(
+    filterQuery?: Partial<FilterQuery<ProductVariant>>
+  ): Promise<ProductVariant[]> {
+    return await ProductVariantModel.find({
+      productVariantId: { $ne: null },
+      title: { $nin: ["Gift Card"] },
+      status: PRODUCT_ACTIVE_STATUS,
+      ...filterQuery,
+    }).lean();
   }
 
   private _calcDaysActivation(publishedDate: string | Date) {
@@ -267,8 +279,25 @@ export class ReportService {
       this.last7DaysData(),
     ]);
 
+    const allActiveProductNotSold = await this.allActiveProductVariantData({
+      productVariantId: { $nin: allData.map((item) => item.productVariantId) },
+    });
+
     const data = await Promise.all(
-      allData
+      [
+        ...allData,
+        ...allActiveProductNotSold.map((item) => ({
+          sku: item.sku,
+          productVariantId: item.productVariantId,
+          vendor: item.vendor,
+          productType: item.productType,
+          title: item.title,
+          variantTitle: item.variantTitle,
+          unitSold: 0,
+          netSale: 0,
+          totalCost: 0,
+        })),
+      ]
         .map((item) => this.mergeLast7DaysData(item, last7DaysData))
         .map((item) => this.lookUpInventoryItemAndCalc(item))
     );
