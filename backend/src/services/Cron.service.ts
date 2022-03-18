@@ -1,11 +1,8 @@
-import { startCron } from "cron-decorators";
-import { CrawledModel } from "model/Crawled.model";
 import { CronModel } from "model/Cron.model";
 import { ShopifyOrderModel } from "model/shopify/Order.model";
 import { ShopifyProductModel } from "model/shopify/Product.model";
 import { ProductVariantModel } from "model/warehouse/ProductVariant.model";
 import { ProductVariantSaleModel } from "model/warehouse/ProductVariantSale.model";
-import { CrawlerName } from "shares/enums/crawler";
 import { ECronName, ECronStatus } from "shares/enums/cron";
 import { Service } from "typedi";
 import { ProductVariantLookupService } from "./data-warehouse/ProductVariantLookup.service";
@@ -85,19 +82,11 @@ export class CronService {
     const limit = 50;
     let hasNextPage = true;
     let skip = 0;
-    const inventoryItemCrawler = await CrawledModel.findOne({
-      crawlerName: CrawlerName.InventoryItem,
-    }).lean();
-    const [lastProductVariantUpdated] = await ProductVariantModel.find({
-      updatedAt: { $gte: inventoryItemCrawler.previousSyncTime },
-    })
+
+    const [lastProductVariantUpdated] = await ProductVariantModel.find({})
       .sort({ updatedAt: -1 })
       .limit(1);
-    const lastUpdatedAt = new Date(
-      lastProductVariantUpdated?.updatedAt ??
-        inventoryItemCrawler?.previousSyncTime ??
-        0
-    );
+    const lastUpdatedAt = new Date(lastProductVariantUpdated?.updatedAt ?? 0);
     while (hasNextPage) {
       const products = await ShopifyProductModel.find({
         updatedAt: { $gt: lastUpdatedAt },
