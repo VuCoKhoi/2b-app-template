@@ -16,13 +16,32 @@ export class CommandService {
 
   convertProductData2Obj(data: any[]) {
     return {
+      // api data
       // Women's Fall 22 In-Season Stock (CORPORATE) => title
       title: data[2],
       // LFAS2-221  => merge upc
       style: data[15],
       // GERANIUM MULTI => merge upc
       colorName: data[38],
+      // MUM => merge upc
       colorCode: data[39],
+      // MUM => merge upc
+      sizes: data[29] as string[],
+    };
+  }
+
+  convertUpcData2Obj(data: any[]) {
+    return {
+      // LFAS2-221  => merge upc
+      style: data[0],
+      // GERANIUM MULTI => merge upc
+      colorName: data[1],
+      // MUM => merge upc
+      colorCode: data[2],
+      // MUM => merge upc
+      size: data[3] as string,
+
+      // upc
     };
   }
   async test() {
