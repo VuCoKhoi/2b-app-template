@@ -14,4 +14,7 @@ export class XlsxService {
     ]);
     fs.writeFileSync(`${process.cwd()}/statics/${filename}.xlsx`, buffer);
   }
+  readFile(path: string) {
+    return xlsx.parse(`${process.cwd()}${path}`);
+  }
 }
