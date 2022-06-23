@@ -1,5 +1,5 @@
 import * as Shopify from "shopify-api-node";
-import { get } from "lodash";
+import { get, omit } from "lodash";
 import { MethodNotAllowedError } from "routing-controllers";
 import { Service } from "typedi";
 import { DEFAULT_LIMIT } from "contants";
@@ -23,6 +23,28 @@ export type ProductConnection = {
   products: Shopify.IProduct[];
   nextPageCursor: string | number;
   hasNextPage: boolean;
+};
+
+export type CreateProductParams = {
+  title: string;
+  product_type?: string;
+  vendor: string;
+  variants: {
+    option1: string;
+    option2?: string;
+    price: number;
+    sku: string;
+    inventory_quantity: number;
+  }[];
+  options: { name: string; values?: string[] }[];
+  images: { src: string }[];
+  tags: string;
+};
+
+export type UpdateInventoryParams = {
+  id: number;
+  cost: number;
+  tracked: boolean;
 };
 
 @Service()
@@ -107,31 +129,21 @@ export class ShopifyClientRepository {
       hasNextPage: products.length === params.limit,
     };
   }
-  async registerWebhooks(
+  async createProduct(
     shopifyClient: Shopify,
-    topic: Shopify.WebhookTopic,
-    address: string
+    productData: CreateProductParams
   ) {
-    const data: {
-      format: Shopify.WebhookFormat;
-      topic: Shopify.WebhookTopic;
-      address: string;
-    } = {
-      topic,
-      address,
-      format: "json",
-    };
-    try {
-      const list = await shopifyClient.webhook.list(data);
-      const existingWhId = get(list, [0, "id"]);
-      if (!existingWhId) await shopifyClient.webhook.create(data);
-      else await shopifyClient.webhook.update(existingWhId, data);
-    } catch (error) {
-      console.error(new Date(), "Register webhook failure", {
-        data,
-        error,
-      });
-      throw new MethodNotAllowedError("register webhook failed");
-    }
+    return await shopifyClient.product.create(productData);
+  }
+  async deleteProduct(shopifyClient: Shopify, id: number) {
+    return await shopifyClient.product.delete(id);
+  }
+  async updateInventory(
+    shopifyClient: Shopify,
+    inventoryData: UpdateInventoryParams
+  ) {
+    return await shopifyClient.inventoryItem.update(inventoryData.id, {
+      ...omit(inventoryData, ["id"]),
+    });
   }
 }

@@ -5,7 +5,6 @@ import {
 } from "model/shopify/Product.model";
 import Shopify from "shopify-api-node";
 import { Service } from "typedi";
-
 @Service()
 export class ShopifyProductService {
   async getProducts(
@@ -24,6 +23,14 @@ export class ShopifyProductService {
       }
     );
   }
+
+  async getAllProductInDb(
+    project: {
+      [key in keyof ShopifyProduct]?: 1;
+    } = {}
+  ) {
+    return await ShopifyProductModel.find({}, { ...project });
+  }
   async saveProduct2Db(datas: ShopifyProduct[]) {
     return await Promise.all(
       datas.map((data) =>
@@ -34,5 +41,11 @@ export class ShopifyProductService {
         )
       )
     );
+  }
+
+  async deleteProductInDb(id: number) {
+    return await ShopifyProductModel.findOneAndDelete({
+      id,
+    });
   }
 }
