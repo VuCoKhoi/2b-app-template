@@ -48,6 +48,7 @@ export class CronService {
     const limit = 50;
     let hasNextPage = true;
     let skip = 0;
+    let cursor = 0;
     const [lastProductVariantSaleUpdated] = await ProductVariantSaleModel.find()
       .sort({ updatedAt: -1 })
       .limit(1);
@@ -61,13 +62,15 @@ export class CronService {
         }),
         created_at: { $gte: new Date("2021-12-31T00:00:00.000Z").getTime() },
         test: false,
+        id: { $gt: cursor },
         ...customQuery,
       })
-        .skip(skip)
+        .sort({ id: 1 })
         .limit(limit)
         .lean();
 
       if (orders.length) {
+        cursor = orders[orders.length - 1]?.id;
         skip += orders.length;
         const lookUpProductVariants =
           await this.productVariantSaleService.lookUpOrderItems(orders);
@@ -98,6 +101,7 @@ export class CronService {
     const limit = 50;
     let hasNextPage = true;
     let skip = 0;
+    let cursor = 0;
 
     const [lastProductVariantUpdated] = await ProductVariantModel.find({})
       .sort({ updatedAt: -1 })
@@ -109,13 +113,15 @@ export class CronService {
         ...(!forceUpdate && {
           updatedAt: { $gte: lastUpdatedAt > now ? now : lastUpdatedAt },
         }),
+        id: { $gt: cursor },
         ...customQuery,
       })
-        .skip(skip)
+        .sort({ id: 1 })
         .limit(limit)
         .lean();
 
       if (products.length) {
+        cursor = products[products.length - 1]?.id;
         skip += products.length;
         const lookUpVariants =
           await this.productVariantLookupService.lookUpVariants(products);
