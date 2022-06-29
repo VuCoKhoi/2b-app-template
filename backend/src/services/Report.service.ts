@@ -223,7 +223,6 @@ export class ReportService {
             {}
           ),
         } as LookUpInventoryItemResult;
-        if (result.title === "Kathleen Top- Green") console.log(result, group);
         return {
           ...result,
           grossMargin: result.netSale
@@ -284,6 +283,10 @@ export class ReportService {
       productVariantId: { $nin: allData.map((item) => item.productVariantId) },
     });
 
+    console.log(
+      "aaaaaaaa",
+      allData.filter((item) => item.productVariantId === 39442457264226).length
+    );
     const data = await Promise.all(
       [
         ...allData,
@@ -301,6 +304,10 @@ export class ReportService {
       ]
         .map((item) => this.mergeLast7DaysData(item, last7DaysData))
         .map((item) => this.lookUpInventoryItemAndCalc(item))
+    );
+    console.log(
+      "aaaaaaaa",
+      data.filter((item) => item.productVariantId === 39442457264226).length
     );
     const reportData = this.xlsxService.convertArrObj2ArrArr(
       this.mergeRow(data.filter(Boolean))
