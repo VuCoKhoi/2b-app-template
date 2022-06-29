@@ -32,7 +32,7 @@ export class ShopifyInventoryItemService {
   async getInventoryItem(inventoryItemId: number) {
     let inventoryItem = (await ShopifyInventoryItemModel.findOne(
       {
-        id: inventoryItemId,
+        id: Number(inventoryItemId),
       },
       { _id: 0 }
     ).lean()) as Shopify.IInventoryItem;
@@ -55,7 +55,7 @@ export class ShopifyInventoryItemService {
     updatedAt: Date
   ): Promise<number> {
     const inventoryItem = await this.getOneInventoryItemInDB({
-      id: inventory_item_id,
+      id: Number(inventory_item_id),
     });
     const needUpdate = !inventoryItem || inventoryItem.updatedAt < updatedAt;
     return needUpdate ? inventory_item_id : null;

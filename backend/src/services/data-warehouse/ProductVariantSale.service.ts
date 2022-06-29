@@ -123,7 +123,7 @@ export class ProductVariantSaleService {
     return await Promise.all(
       lookUpProductVariants.map((item) =>
         ProductVariantSaleModel.findOneAndUpdate(
-          { id: item.id },
+          { id: Number(item.id) },
           { ...item },
           { new: true, upsert: true }
         )

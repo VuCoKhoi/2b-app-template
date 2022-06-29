@@ -1,7 +1,11 @@
+import { FilterQuery } from "mongoose";
 import { CronModel } from "model/Cron.model";
 import { ShopifyOrderModel } from "model/shopify/Order.model";
 import { ShopifyProductModel } from "model/shopify/Product.model";
-import { ProductVariantModel } from "model/warehouse/ProductVariant.model";
+import {
+  ProductVariant,
+  ProductVariantModel,
+} from "model/warehouse/ProductVariant.model";
 import { ProductVariantSaleModel } from "model/warehouse/ProductVariantSale.model";
 import { ECronName, ECronStatus } from "shares/enums/cron";
 import { Service } from "typedi";
@@ -32,7 +36,11 @@ export class CronService {
     await CronModel.findOneAndUpdate({ name }, { status: ECronStatus.FINISH });
   }
 
-  async aggregateOrderItems(forceUpdate = false) {
+  async aggregateOrderItems(
+    forceUpdate = false,
+    customQuery?: FilterQuery<ProductVariant>
+  ) {
+    const now = new Date();
     const isRunning = await this.checkCronRunning(ECronName.ORDER_ITEM);
     if (isRunning && !forceUpdate) return;
 
@@ -48,9 +56,12 @@ export class CronService {
     );
     while (hasNextPage) {
       const orders = await ShopifyOrderModel.find({
-        ...(!forceUpdate && { updatedAt: { $gt: lastUpdatedAt } }),
+        ...(!forceUpdate && {
+          updatedAt: { $gte: lastUpdatedAt > now ? now : lastUpdatedAt },
+        }),
         created_at: { $gte: new Date("2021-12-31T00:00:00.000Z").getTime() },
         test: false,
+        ...customQuery,
       })
         .skip(skip)
         .limit(limit)
@@ -64,7 +75,7 @@ export class CronService {
           await this.productVariantSaleService.saveProductVariantSale2Db(
             lookUpProductVariants
           );
-        console.log(result.length, " variants updated");
+        console.log(result.length, " variants updated", { skip, limit });
       }
       if (orders.length < limit) {
         console.log("aggregateOrderItems ", skip, " orders");
@@ -76,7 +87,10 @@ export class CronService {
     //1. get all order in range
   }
 
-  async aggragteProductVariants(forceUpdate = false) {
+  async aggragteProductVariants(
+    forceUpdate = false,
+    customQuery?: FilterQuery<ProductVariant>
+  ) {
     const now = new Date();
     const isRunning = await this.checkCronRunning(ECronName.PRODUCT_VARIANT);
     if (isRunning && !forceUpdate) return;
@@ -95,6 +109,7 @@ export class CronService {
         ...(!forceUpdate && {
           updatedAt: { $gte: lastUpdatedAt > now ? now : lastUpdatedAt },
         }),
+        ...customQuery,
       })
         .skip(skip)
         .limit(limit)

@@ -33,4 +33,19 @@ export class JobController {
     await this.cronService.aggregateOrderItems();
     await this.reportService.makeReport();
   }
+
+  @Cron("force update", "50 * * * *", {
+    // run every day at 23:00
+    timeZone: TZ_NAME,
+    runOnInit: false,
+  })
+  public async forceUpdate(): Promise<void> {
+    const now = new Date().getTime();
+    await this.cronService.aggragteProductVariants(true, {
+      updatedAt: { $gte: new Date(now - 25 * 60 * 60 * 1000) },
+    });
+    await this.cronService.aggregateOrderItems(true, {
+      updatedAt: { $gte: new Date(now - 25 * 60 * 60 * 1000) },
+    });
+  }
 }
