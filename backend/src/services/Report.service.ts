@@ -307,7 +307,7 @@ export class ReportService {
     );
     console.log(
       "aaaaaaaa",
-      data.filter((item) => item.productVariantId === 39442457264226).length
+      data.filter((item) => item?.productVariantId === 39442457264226).length
     );
     const reportData = this.xlsxService.convertArrObj2ArrArr(
       this.mergeRow(data.filter(Boolean))
