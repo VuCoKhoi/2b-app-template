@@ -32,9 +32,10 @@ export class CronService {
     await CronModel.findOneAndUpdate({ name }, { status: ECronStatus.FINISH });
   }
 
-  async aggregateOrderItems() {
+  async aggregateOrderItems(forceUpdate = false) {
     const isRunning = await this.checkCronRunning(ECronName.ORDER_ITEM);
-    if (isRunning) return;
+    if (isRunning && !forceUpdate) return;
+
     await this.cronStart(ECronName.ORDER_ITEM);
     const limit = 50;
     let hasNextPage = true;
@@ -47,7 +48,7 @@ export class CronService {
     );
     while (hasNextPage) {
       const orders = await ShopifyOrderModel.find({
-        updatedAt: { $gt: lastUpdatedAt },
+        ...(!forceUpdate && { updatedAt: { $gt: lastUpdatedAt } }),
         created_at: { $gte: new Date("2021-12-31T00:00:00.000Z").getTime() },
         test: false,
       })

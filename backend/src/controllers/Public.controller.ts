@@ -23,7 +23,12 @@ export class PublicController {
 
   @Get()
   async test() {
-    this.cronService.aggragteProductVariants(true).catch(console.error);
+    this.cronService
+      .aggragteProductVariants(true)
+      .then(() => {
+        this.cronService.aggregateOrderItems(true).catch(console.error);
+      })
+      .catch(console.error);
     return { running: true };
   }
 
