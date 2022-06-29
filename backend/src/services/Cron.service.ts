@@ -75,9 +75,10 @@ export class CronService {
     //1. get all order in range
   }
 
-  async aggragteProductVariants() {
+  async aggragteProductVariants(forceUpdate = false) {
+    const now = new Date();
     const isRunning = await this.checkCronRunning(ECronName.PRODUCT_VARIANT);
-    if (isRunning) return;
+    if (isRunning && !forceUpdate) return;
     await this.cronStart(ECronName.PRODUCT_VARIANT);
     const limit = 50;
     let hasNextPage = true;
@@ -87,9 +88,12 @@ export class CronService {
       .sort({ updatedAt: -1 })
       .limit(1);
     const lastUpdatedAt = new Date(lastProductVariantUpdated?.updatedAt ?? 0);
+
     while (hasNextPage) {
       const products = await ShopifyProductModel.find({
-        updatedAt: { $gt: lastUpdatedAt },
+        ...(!forceUpdate && {
+          updatedAt: { $gte: lastUpdatedAt > now ? now : lastUpdatedAt },
+        }),
       })
         .skip(skip)
         .limit(limit)
