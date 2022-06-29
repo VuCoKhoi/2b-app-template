@@ -223,6 +223,7 @@ export class ReportService {
             {}
           ),
         } as LookUpInventoryItemResult;
+        if (result.title === "Kathleen Top- Green") console.log(result, group);
         return {
           ...result,
           grossMargin: result.netSale
