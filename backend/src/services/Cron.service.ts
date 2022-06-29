@@ -45,7 +45,7 @@ export class CronService {
     if (isRunning && !forceUpdate) return;
 
     await this.cronStart(ECronName.ORDER_ITEM);
-    const limit = 50;
+    const limit = 100;
     let hasNextPage = true;
     let skip = 0;
     let cursor = 0;
@@ -98,7 +98,7 @@ export class CronService {
     const isRunning = await this.checkCronRunning(ECronName.PRODUCT_VARIANT);
     if (isRunning && !forceUpdate) return;
     await this.cronStart(ECronName.PRODUCT_VARIANT);
-    const limit = 50;
+    const limit = 100;
     let hasNextPage = true;
     let skip = 0;
     let cursor = 0;
