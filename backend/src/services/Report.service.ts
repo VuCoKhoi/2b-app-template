@@ -242,6 +242,11 @@ export class ReportService {
       );
       const wos =
         Math.floor((result.currentInv * 10) / weeklyAvgRateOfSale) / 10;
+      if (
+        group[0].title === "Margot Jeans- Medium Wash" &&
+        group[0].sku === "SKU5667"
+      )
+        console.log("aaaaaaa", result);
       return { ...result, wos, weeklyAvgRateOfSale };
     });
   }
