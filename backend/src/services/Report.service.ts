@@ -246,7 +246,7 @@ export class ReportService {
         group[0].title === "Margot Jeans- Medium Wash" &&
         group[0].sku === "SKU5667"
       )
-        console.log("aaaaaaa", result);
+        console.log("aaaaaaa", group);
       return { ...result, wos, weeklyAvgRateOfSale };
     });
   }
