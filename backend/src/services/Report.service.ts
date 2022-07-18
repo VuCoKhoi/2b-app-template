@@ -196,13 +196,6 @@ export class ReportService {
   }
 
   mergeRow(datas: LookUpInventoryItemResult[]) {
-    const bug = datas.filter(
-      (data) =>
-        data &&
-        data.title === "Margot Jeans- Medium Wash" &&
-        data.sku === "SKU5667"
-    );
-    console.log("aaaaaaaaaa2", bug.length);
     return Object.values(
       groupBy(datas, (a: LookUpInventoryItemResult) =>
         JSON.stringify(pick(a, ["vendor", "title", "productType"]))
@@ -311,7 +304,9 @@ export class ReportService {
     );
     const bug3 = data.filter(
       (data) =>
-        data.title === "Margot Jeans- Medium Wash" && data.sku === "SKU5667"
+        data &&
+        data.title === "Margot Jeans- Medium Wash" &&
+        data.sku === "SKU5667"
     );
     console.log("aaaaaaaaa1", bug3.length, bug3.length);
 
