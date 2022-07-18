@@ -289,8 +289,6 @@ export class ReportService {
       productVariantId: { $nin: allData.map((item) => item.productVariantId) },
     });
 
-    console.log("aaaaa", allData);
-
     const data = await Promise.all(
       [
         ...allData,
@@ -309,6 +307,7 @@ export class ReportService {
         .map((item) => this.mergeLast7DaysData(item, last7DaysData))
         .map((item) => this.lookUpInventoryItemAndCalc(item))
     );
+    console.log("aaaaa", data);
 
     const reportData = this.xlsxService.convertArrObj2ArrArr(
       this.mergeRow(data.filter(Boolean))
