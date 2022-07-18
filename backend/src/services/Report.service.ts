@@ -25,7 +25,9 @@ export class ReportService {
         $match: {
           productVariantId: { $ne: null },
           date: { $gte: startOfYear },
-          title: { $nin: ["Gift Card"] },
+          // title: { $nin: ["Gift Card"] },
+          title: "Margot Jeans- Medium Wash",
+          sku: "SKU5667",
         },
       },
       {
@@ -246,8 +248,7 @@ export class ReportService {
         group[0].title === "Margot Jeans- Medium Wash" &&
         group[0].sku === "SKU5667"
       )
-        console.log("aaaaaaa", group);
-      return { ...result, wos, weeklyAvgRateOfSale };
+        return { ...result, wos, weeklyAvgRateOfSale };
     });
   }
 
@@ -287,6 +288,8 @@ export class ReportService {
     const allActiveProductNotSold = await this.allActiveProductVariantData({
       productVariantId: { $nin: allData.map((item) => item.productVariantId) },
     });
+
+    console.log("aaaaa", allData.length);
 
     const data = await Promise.all(
       [
