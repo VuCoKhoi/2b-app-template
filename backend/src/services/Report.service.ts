@@ -38,7 +38,7 @@ export class ReportService {
           totalCost: { $sum: "$totalCost" },
 
           title: { $first: "$title" },
-          sku: { $first: "$.sku" },
+          sku: { $first: "$sku" },
           vendor: { $first: "$vendor" },
           productType: { $first: "$productType" },
           variantTitle: { $first: "$variantTitle" },
@@ -84,7 +84,7 @@ export class ReportService {
           totalCost: { $sum: "$totalCost" },
 
           title: { $first: "$title" },
-          sku: { $first: "$.sku" },
+          sku: { $first: "$sku" },
           vendor: { $first: "$vendor" },
           productType: { $first: "$productType" },
           variantTitle: { $first: "$variantTitle" },
