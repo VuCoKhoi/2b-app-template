@@ -198,6 +198,15 @@ export class ReportService {
   }
 
   mergeRow(datas: LookUpInventoryItemResult[]) {
+    console.log(
+      "aaaaaaaaa",
+      JSON.stringify(
+        groupBy(datas, (a: LookUpInventoryItemResult) =>
+          JSON.stringify(pick(a, ["vendor", "title", "productType"]))
+        )
+      ),
+      datas
+    );
     return Object.values(
       groupBy(datas, (a: LookUpInventoryItemResult) =>
         JSON.stringify(pick(a, ["vendor", "title", "productType"]))
@@ -307,7 +316,6 @@ export class ReportService {
         .map((item) => this.mergeLast7DaysData(item, last7DaysData))
         .map((item) => this.lookUpInventoryItemAndCalc(item))
     );
-    console.log("aaaaa", data);
 
     const reportData = this.xlsxService.convertArrObj2ArrArr(
       this.mergeRow(data.filter(Boolean))
