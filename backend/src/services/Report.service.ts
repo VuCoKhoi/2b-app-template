@@ -198,7 +198,9 @@ export class ReportService {
   mergeRow(datas: LookUpInventoryItemResult[]) {
     const bug = datas.filter(
       (data) =>
-        data.title === "Margot Jeans- Medium Wash" && data.sku === "SKU5667"
+        data &&
+        data.title === "Margot Jeans- Medium Wash" &&
+        data.sku === "SKU5667"
     );
     console.log("aaaaaaaaaa2", bug.length);
     return Object.values(
