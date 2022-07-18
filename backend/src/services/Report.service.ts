@@ -3,7 +3,7 @@ import {
   LookUpInventoryItemResult,
   ProductSaleAggregateResult,
 } from "interfaces/report.interface";
-import { groupBy, omit, pick } from "lodash";
+import { groupBy, omit, pick, cloneDeep } from "lodash";
 import { ReportHistory, ReportHistoryModel } from "model/ReportHistory.model";
 import { FilterQuery } from "mongoose";
 import {
@@ -197,10 +197,16 @@ export class ReportService {
 
   mergeRow(datas: LookUpInventoryItemResult[]) {
     return Object.values(
-      groupBy(datas, (a: LookUpInventoryItemResult) =>
+      groupBy(cloneDeep(datas), (a: LookUpInventoryItemResult) =>
         JSON.stringify(pick(a, ["vendor", "title", "productType"]))
       )
     ).map((group: LookUpInventoryItemResult[]) => {
+      if (
+        group[0].title === "Margot Jeans- Medium Wash" &&
+        group[0].sku === "SKU5667"
+      ) {
+        console.log("aaaaaaaaa", group);
+      }
       const result = group.reduce((acc, cur) => {
         const fields = Object.keys(
           omit(cur, [
