@@ -3,7 +3,7 @@ import {
   LookUpInventoryItemResult,
   ProductSaleAggregateResult,
 } from "interfaces/report.interface";
-import { groupBy, omit, pick, cloneDeep } from "lodash";
+import { groupBy, omit, pick } from "lodash";
 import { ReportHistory, ReportHistoryModel } from "model/ReportHistory.model";
 import { FilterQuery } from "mongoose";
 import {
@@ -31,30 +31,32 @@ export class ReportService {
       {
         $group: {
           _id: {
-            sku: "$sku",
             productVariantId: "$productVariantId",
-            title: "$title", // lookup
-            // variantTitle: "$variantTitle", // lookup
-            vendor: "$vendor",
-            productType: "$productType",
           },
           unitSold: { $sum: "$unitSold" },
           netSale: { $sum: "$netSale" },
           totalCost: { $sum: "$totalCost" },
+
+          title: { $first: "$title" },
+          sku: { $first: "$.sku" },
+          vendor: { $first: "$vendor" },
+          productType: { $first: "$productType" },
+          variantTitle: { $first: "$variantTitle" },
         },
       },
       {
         $project: {
           _id: 0,
-          sku: "$_id.sku",
           productVariantId: "$_id.productVariantId",
-          vendor: "$_id.vendor",
-          productType: "$_id.productType",
-          title: "$_id.title",
-          variantTitle: "$_id.variantTitle",
           unitSold: 1,
           netSale: 1,
           totalCost: 1,
+
+          sku: 1,
+          vendor: 1,
+          productType: 1,
+          title: 1,
+          variantTitle: 1,
         },
       },
       { $sort: { productVariantId: -1 } },
@@ -74,28 +76,34 @@ export class ReportService {
       {
         $group: {
           _id: {
-            sku: "$sku",
             productVariantId: "$productVariantId",
-            title: "$title", // lookup
-            // variantTitle: "$variantTitle", // lookup
-            vendor: "$vendor",
-            productType: "$productType",
           },
+
           unitSold: { $sum: "$unitSold" },
           netSale: { $sum: "$netSale" },
           totalCost: { $sum: "$totalCost" },
+
+          title: { $first: "$title" },
+          sku: { $first: "$.sku" },
+          vendor: { $first: "$vendor" },
+          productType: { $first: "$productType" },
+          variantTitle: { $first: "$variantTitle" },
         },
       },
       {
         $project: {
           _id: 0,
-          sku: "$_id.sku",
           productVariantId: "$_id.productVariantId",
-          vendor: "$_id.vendor",
-          productType: "$_id.productType",
+
           unitSold: 1,
           netSale: 1,
           totalCost: 1,
+
+          sku: 1,
+          vendor: 1,
+          productType: 1,
+          title: 1,
+          variantTitle: 1,
         },
       },
     ]);
@@ -198,7 +206,7 @@ export class ReportService {
   mergeRow(datas: LookUpInventoryItemResult[]) {
     return Object.values(
       groupBy(datas, (a: LookUpInventoryItemResult) =>
-        JSON.stringify(pick(a, ["vendor", "title", "productType"]))
+        JSON.stringify(pick(a, ["title", "productType"]))
       )
     ).map((group: LookUpInventoryItemResult[]) => {
       const result = group.reduce((acc, cur) => {
@@ -242,7 +250,6 @@ export class ReportService {
       );
       const wos =
         Math.floor((result.currentInv * 10) / weeklyAvgRateOfSale) / 10;
-
       return { ...result, wos, weeklyAvgRateOfSale };
     });
   }
@@ -302,17 +309,6 @@ export class ReportService {
         .map((item) => this.mergeLast7DaysData(item, last7DaysData))
         .map((item) => this.lookUpInventoryItemAndCalc(item))
     );
-    const bug3 = data.filter(
-      (data) =>
-        data &&
-        data.title === "Margot Jeans- Medium Wash" &&
-        data.sku === "SKU5667" &&
-        ![
-          39588211818594, 39588211785826, 39588211753058, 39588211720290,
-          39588211687522, 39588211654754, 39588211621986, 39588211589218,
-        ].includes(data.productVariantId)
-    );
-    console.log("aaaaaaaaa1", bug3);
 
     const reportData = this.xlsxService.convertArrObj2ArrArr(
       this.mergeRow(data.filter(Boolean))
