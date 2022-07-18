@@ -306,9 +306,13 @@ export class ReportService {
       (data) =>
         data &&
         data.title === "Margot Jeans- Medium Wash" &&
-        data.sku === "SKU5667"
+        data.sku === "SKU5667" &&
+        ![
+          39588211818594, 39588211785826, 39588211753058, 39588211720290,
+          39588211687522, 39588211654754, 39588211621986, 39588211589218,
+        ].includes(data.productVariantId)
     );
-    console.log("aaaaaaaaa1", bug3.length, bug3.length);
+    console.log("aaaaaaaaa1", bug3);
 
     const reportData = this.xlsxService.convertArrObj2ArrArr(
       this.mergeRow(data.filter(Boolean))
