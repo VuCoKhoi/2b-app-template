@@ -289,7 +289,7 @@ export class ReportService {
       productVariantId: { $nin: allData.map((item) => item.productVariantId) },
     });
 
-    console.log("aaaaa", allData.length);
+    console.log("aaaaa", allData);
 
     const data = await Promise.all(
       [
