@@ -289,28 +289,6 @@ export class ReportService {
       productVariantId: { $nin: allData.map((item) => item.productVariantId) },
     });
 
-    const bug2 = await Promise.all(
-      [
-        ...allData,
-        ...allActiveProductNotSold.map((item) => ({
-          sku: item.sku,
-          productVariantId: item.productVariantId,
-          vendor: item.vendor,
-          productType: item.productType,
-          title: item.title,
-          variantTitle: item.variantTitle,
-          unitSold: 0,
-          netSale: 0,
-          totalCost: 0,
-        })),
-      ]
-        .map((item) => this.mergeLast7DaysData(item, last7DaysData))
-        .filter(
-          (data) =>
-            data.title === "Margot Jeans- Medium Wash" && data.sku === "SKU5667"
-        )
-        .map((item) => this.lookUpInventoryItemAndCalc(item))
-    );
     const data = await Promise.all(
       [
         ...allData,
@@ -333,7 +311,7 @@ export class ReportService {
       (data) =>
         data.title === "Margot Jeans- Medium Wash" && data.sku === "SKU5667"
     );
-    console.log("aaaaaaaaa1", bug2.length, bug3.length);
+    console.log("aaaaaaaaa1", bug3.length, bug3.length);
 
     const reportData = this.xlsxService.convertArrObj2ArrArr(
       this.mergeRow(data.filter(Boolean))
