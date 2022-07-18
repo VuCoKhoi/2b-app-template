@@ -198,7 +198,7 @@ export class ReportService {
   mergeRow(datas: LookUpInventoryItemResult[]) {
     return Object.values(
       groupBy(datas, (a: LookUpInventoryItemResult) =>
-        JSON.stringify(pick(a, ["title", "productType"]))
+        JSON.stringify(pick(a, ["sku", "title", "productType"]))
       )
     ).map((group: LookUpInventoryItemResult[]) => {
       const result = group.reduce((acc, cur) => {
@@ -286,17 +286,17 @@ export class ReportService {
     const data = await Promise.all(
       [
         ...allData,
-        // ...allActiveProductNotSold.map((item) => ({
-        //   sku: item.sku,
-        //   productVariantId: item.productVariantId,
-        //   vendor: item.vendor,
-        //   productType: item.productType,
-        //   title: item.title,
-        //   variantTitle: item.variantTitle,
-        //   unitSold: 0,
-        //   netSale: 0,
-        //   totalCost: 0,
-        // })),
+        ...allActiveProductNotSold.map((item) => ({
+          sku: item.sku,
+          productVariantId: item.productVariantId,
+          vendor: item.vendor,
+          productType: item.productType,
+          title: item.title,
+          variantTitle: item.variantTitle,
+          unitSold: 0,
+          netSale: 0,
+          totalCost: 0,
+        })),
       ]
         .map((item) => this.mergeLast7DaysData(item, last7DaysData))
         .map((item) => this.lookUpInventoryItemAndCalc(item))
