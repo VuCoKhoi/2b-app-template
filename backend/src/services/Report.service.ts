@@ -198,15 +198,6 @@ export class ReportService {
   }
 
   mergeRow(datas: LookUpInventoryItemResult[]) {
-    console.log(
-      "aaaaaaaaa",
-      JSON.stringify(
-        groupBy(datas, (a: LookUpInventoryItemResult) =>
-          JSON.stringify(pick(a, ["vendor", "title", "productType"]))
-        )
-      ),
-      datas
-    );
     return Object.values(
       groupBy(datas, (a: LookUpInventoryItemResult) =>
         JSON.stringify(pick(a, ["vendor", "title", "productType"]))
@@ -253,11 +244,8 @@ export class ReportService {
       );
       const wos =
         Math.floor((result.currentInv * 10) / weeklyAvgRateOfSale) / 10;
-      if (
-        group[0].title === "Margot Jeans- Medium Wash" &&
-        group[0].sku === "SKU5667"
-      )
-        return { ...result, wos, weeklyAvgRateOfSale };
+
+      return { ...result, wos, weeklyAvgRateOfSale };
     });
   }
 
@@ -301,17 +289,17 @@ export class ReportService {
     const data = await Promise.all(
       [
         ...allData,
-        // ...allActiveProductNotSold.map((item) => ({
-        //   sku: item.sku,
-        //   productVariantId: item.productVariantId,
-        //   vendor: item.vendor,
-        //   productType: item.productType,
-        //   title: item.title,
-        //   variantTitle: item.variantTitle,
-        //   unitSold: 0,
-        //   netSale: 0,
-        //   totalCost: 0,
-        // })),
+        ...allActiveProductNotSold.map((item) => ({
+          sku: item.sku,
+          productVariantId: item.productVariantId,
+          vendor: item.vendor,
+          productType: item.productType,
+          title: item.title,
+          variantTitle: item.variantTitle,
+          unitSold: 0,
+          netSale: 0,
+          totalCost: 0,
+        })),
       ]
         .map((item) => this.mergeLast7DaysData(item, last7DaysData))
         .map((item) => this.lookUpInventoryItemAndCalc(item))
