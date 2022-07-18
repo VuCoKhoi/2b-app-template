@@ -25,9 +25,7 @@ export class ReportService {
         $match: {
           productVariantId: { $ne: null },
           date: { $gte: startOfYear },
-          // title: { $nin: ["Gift Card"] },
-          title: "Margot Jeans- Medium Wash",
-          sku: "SKU5667",
+          title: { $nin: ["Gift Card"] },
         },
       },
       {
