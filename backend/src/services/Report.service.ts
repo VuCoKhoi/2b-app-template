@@ -198,7 +198,7 @@ export class ReportService {
   mergeRow(datas: LookUpInventoryItemResult[]) {
     return Object.values(
       groupBy(datas, (a: LookUpInventoryItemResult) =>
-        JSON.stringify(pick(a, ["sku", "title", "productType"]))
+        JSON.stringify(pick(a, ["vendor", "title", "productType"]))
       )
     ).map((group: LookUpInventoryItemResult[]) => {
       const result = group.reduce((acc, cur) => {
