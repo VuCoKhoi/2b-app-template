@@ -311,7 +311,6 @@ export class ReportService {
         )
         .map((item) => this.lookUpInventoryItemAndCalc(item))
     );
-    console.log("aaaaaaaaa1", bug2.length);
     const data = await Promise.all(
       [
         ...allData,
@@ -330,6 +329,11 @@ export class ReportService {
         .map((item) => this.mergeLast7DaysData(item, last7DaysData))
         .map((item) => this.lookUpInventoryItemAndCalc(item))
     );
+    const bug3 = data.filter(
+      (data) =>
+        data.title === "Margot Jeans- Medium Wash" && data.sku === "SKU5667"
+    );
+    console.log("aaaaaaaaa1", bug2.length, bug3.length);
 
     const reportData = this.xlsxService.convertArrObj2ArrArr(
       this.mergeRow(data.filter(Boolean))
