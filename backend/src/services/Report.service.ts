@@ -196,17 +196,16 @@ export class ReportService {
   }
 
   mergeRow(datas: LookUpInventoryItemResult[]) {
+    const bug = datas.filter(
+      (data) =>
+        data.title === "Margot Jeans- Medium Wash" && data.sku === "SKU5667"
+    );
+    console.log("aaaaaaaaaa2", bug.length);
     return Object.values(
-      groupBy(cloneDeep(datas), (a: LookUpInventoryItemResult) =>
+      groupBy(datas, (a: LookUpInventoryItemResult) =>
         JSON.stringify(pick(a, ["vendor", "title", "productType"]))
       )
     ).map((group: LookUpInventoryItemResult[]) => {
-      if (
-        group[0].title === "Margot Jeans- Medium Wash" &&
-        group[0].sku === "SKU5667"
-      ) {
-        console.log("aaaaaaaaa", group);
-      }
       const result = group.reduce((acc, cur) => {
         const fields = Object.keys(
           omit(cur, [
@@ -289,7 +288,28 @@ export class ReportService {
     const allActiveProductNotSold = await this.allActiveProductVariantData({
       productVariantId: { $nin: allData.map((item) => item.productVariantId) },
     });
-
+    const bug = allData.filter(
+      (data) =>
+        data.title === "Margot Jeans- Medium Wash" && data.sku === "SKU5667"
+    );
+    const bug2 = [
+      ...allData,
+      ...allActiveProductNotSold.map((item) => ({
+        sku: item.sku,
+        productVariantId: item.productVariantId,
+        vendor: item.vendor,
+        productType: item.productType,
+        title: item.title,
+        variantTitle: item.variantTitle,
+        unitSold: 0,
+        netSale: 0,
+        totalCost: 0,
+      })),
+    ].filter(
+      (data) =>
+        data.title === "Margot Jeans- Medium Wash" && data.sku === "SKU5667"
+    );
+    console.log("aaaaaaaaa1", bug.length, bug2.length);
     const data = await Promise.all(
       [
         ...allData,
